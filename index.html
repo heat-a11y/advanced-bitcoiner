@@ -221,39 +221,97 @@
       background: rgba(255,255,255,.03);
       border-top: 1px solid rgba(255,255,255,.05);
       border-bottom: 1px solid rgba(255,255,255,.05);
-      padding: 14px 0;
-      overflow: hidden;
+      padding: 18px 24px;
+      text-align: center;
     }
-    .ticker-track {
+    .ticker-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.3);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 12px;
+    }
+    .ticker-row {
       display: flex;
-      gap: 48px;
-      width: max-content;
-      animation: ticker-scroll 30s linear infinite;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px 24px;
     }
-    .ticker-track:hover { animation-play-state: paused; }
     .ticker-item {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 10px;
-      white-space: nowrap;
+      gap: 6px;
     }
     .ticker-symbol {
       font-weight: 700;
       color: #F7931A;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
     }
     .ticker-price {
-      font-weight: 600;
-      font-size: 1.3rem;
-    }
-    .ticker-change {
-      font-size: 1.1rem;
       font-weight: 500;
-      padding: 2px 8px;
-      border-radius: 4px;
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.8);
     }
-    .ticker-change.up { background: rgba(0,212,170,.15); color: #00D4AA; }
-    .ticker-change.down { background: rgba(255,107,107,.15); color: #FF6B6B; }
+
+    /* ─── CHART ─── */
+    .chart-section {
+      background: rgba(255,255,255,.02);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .chart-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.4);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 4px;
+    }
+    .chart-price {
+      font-size: 3.2rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .chart-price span { color: #00D4AA; font-size: 1.4rem; font-weight: 500; margin-left: 8px; }
+    .chart-timeframes {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+    .chart-tf {
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: rgba(255,255,255,.4);
+      font-family: inherit;
+      transition: all .2s;
+      border: 1px solid transparent;
+    }
+    .chart-tf:hover { color: #fff; border-color: rgba(255,255,255,.1); }
+    .chart-tf.active {
+      color: #F7931A;
+      background: rgba(247,147,26,.12);
+      border-color: rgba(247,147,26,.2);
+    }
+    .chart-visual {
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .chart-visual svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 4px 40px rgba(247,147,26,.08));
+    }
+    .chart-visual svg path {
+      transition: d .5s cubic-bezier(.25,.46,.45,.94);
+    }
 
     /* ─── SECTION ─── */
     .section { padding: 100px 0; }
@@ -862,25 +920,53 @@
 
   <!-- TICKER -->
   <div class="ticker">
-    <div class="ticker-track" id="tickerTrack">
-      <div class="ticker-item"><span class="ticker-symbol">USD</span><span class="ticker-price">$62,431</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">EUR</span><span class="ticker-price">&#8364;57,820</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">GBP</span><span class="ticker-price">&pound;48,910</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">JPY</span><span class="ticker-price">&yen;9,800,000</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">CNY</span><span class="ticker-price">&#165;453,000</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">SGD</span><span class="ticker-price">S$84,200</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">MYR</span><span class="ticker-price">RM 276,000</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">IDR</span><span class="ticker-price">Rp 1,011,000,000</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">PHP</span><span class="ticker-price">&#8369;3,620,000</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">THB</span><span class="ticker-price">&#3647;2,279,000</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">VND</span><span class="ticker-price">&#8363;1,588,000,000</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">MMK</span><span class="ticker-price">K 131,000,000</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">BND</span><span class="ticker-price">B$84,200</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">AUD</span><span class="ticker-price">A$94,200</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">KRW</span><span class="ticker-price">&#8361;86,200,000</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">INR</span><span class="ticker-price">&#8377;5,210,000</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">CHF</span><span class="ticker-price">Fr 55,800</span></div>
-      <div class="ticker-item"><span class="ticker-symbol">BRL</span><span class="ticker-price">R$312,000</span></div>
+    <div class="ticker-title">Bitcoin price across the globe</div>
+    <div class="ticker-row">
+      <span class="ticker-item"><span class="ticker-symbol">USD</span><span class="ticker-price">$62,431</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">EUR</span><span class="ticker-price">&#8364;57,820</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">GBP</span><span class="ticker-price">&pound;48,910</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">JPY</span><span class="ticker-price">&yen;9,800,000</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">CNY</span><span class="ticker-price">&#165;453,000</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">SGD</span><span class="ticker-price">S$84,200</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">MYR</span><span class="ticker-price">RM 276,000</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">IDR</span><span class="ticker-price">Rp 1,011,000,000</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">PHP</span><span class="ticker-price">&#8369;3,620,000</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">THB</span><span class="ticker-price">&#3647;2,279,000</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">VND</span><span class="ticker-price">&#8363;1,588,000,000</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">MMK</span><span class="ticker-price">K 131,000,000</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">BND</span><span class="ticker-price">B$84,200</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">AUD</span><span class="ticker-price">A$94,200</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">KRW</span><span class="ticker-price">&#8361;86,200,000</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">INR</span><span class="ticker-price">&#8377;5,210,000</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">CHF</span><span class="ticker-price">Fr 55,800</span></span>
+      <span class="ticker-item"><span class="ticker-symbol">BRL</span><span class="ticker-price">R$312,000</span></span>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-section">
+    <div class="chart-title">Bitcoin / USD</div>
+    <div class="chart-price">$62,431 <span id="chartChange">+2.34%</span></div>
+    <div class="chart-timeframes">
+      <button class="chart-tf" data-tf="1d" onclick="switchChart('1d')">1D</button>
+      <button class="chart-tf" data-tf="1w" onclick="switchChart('1w')">1W</button>
+      <button class="chart-tf active" data-tf="1m" onclick="switchChart('1m')">1M</button>
+      <button class="chart-tf" data-tf="1y" onclick="switchChart('1y')">1Y</button>
+      <button class="chart-tf" data-tf="all" onclick="switchChart('all')">ALL</button>
+    </div>
+    <div class="chart-visual">
+      <svg viewBox="0 0 700 220" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#F7931A" stop-opacity=".25"/>
+            <stop offset="100%" stop-color="#F7931A" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path id="chartPath" fill="url(#chartFill)"
+          d="M0,200 L0,180 C20,175 40,160 60,165 C80,170 100,140 120,130 C140,120 160,125 180,110 C200,95 220,100 240,85 C260,70 280,75 300,60 C320,45 340,50 360,40 C380,30 400,35 420,55 C440,75 460,90 480,85 C500,80 520,65 540,70 C560,75 580,60 600,50 C620,40 640,45 660,55 C680,65 700,60 700,60 L700,200 Z"/>
+        <path id="chartLine" fill="none" stroke="#F7931A" stroke-width="2.5" stroke-linecap="round"
+          d="M0,180 C20,175 40,160 60,165 C80,170 100,140 120,130 C140,120 160,125 180,110 C200,95 220,100 240,85 C260,70 280,75 300,60 C320,45 340,50 360,40 C380,30 400,35 420,55 C440,75 460,90 480,85 C500,80 520,65 540,70 C560,75 580,60 600,50 C620,40 640,45 660,55 C680,65 700,60"/>
+      </svg>
     </div>
   </div>
 
@@ -1324,12 +1410,45 @@
       animateCounter(document.getElementById('statCountries'), 86, '+');
     }, 500);
 
-    // ─── TICKER DUPLICATE FOR INFINITE SCROLL ───
-    (function() {
-      var track = document.getElementById('tickerTrack');
-      var clone = track.cloneNode(true);
-      track.parentNode.appendChild(clone);
-    })();
+    // ─── CHART ───
+    var chartPaths = {
+      '1d': {
+        line: 'M0,140 C20,135 40,130 60,138 C80,145 100,125 120,120 C140,115 160,118 180,110 C200,102 220,108 240,100 C260,92 280,95 300,88 C320,80 340,85 360,78 C380,70 400,72 420,75 C440,78 460,82 480,76 C500,70 520,68 540,72 C560,76 580,65 600,58 C620,50 640,55 660,52 C680,48 700,45',
+        fill: 'M0,200 L0,140 C20,135 40,130 60,138 C80,145 100,125 120,120 C140,115 160,118 180,110 C200,102 220,108 240,100 C260,92 280,95 300,88 C320,80 340,85 360,78 C380,70 400,72 420,75 C440,78 460,82 480,76 C500,70 520,68 540,72 C560,76 580,65 600,58 C620,50 640,55 660,52 C680,48 700,45 L700,200 Z',
+        change: '+1.82%'
+      },
+      '1w': {
+        line: 'M0,170 C20,165 40,155 60,160 C80,165 100,140 120,135 C140,130 160,145 180,140 C200,135 220,120 240,115 C260,110 280,105 300,100 C320,95 340,90 360,85 C380,80 400,88 420,82 C440,76 460,78 480,72 C500,66 520,70 540,64 C560,58 580,55 600,52 C620,48 640,50 660,55 C680,60 700,58',
+        fill: 'M0,200 L0,170 C20,165 40,155 60,160 C80,165 100,140 120,135 C140,130 160,145 180,140 C200,135 220,120 240,115 C260,110 280,105 300,100 C320,95 340,90 360,85 C380,80 400,88 420,82 C440,76 460,78 480,72 C500,66 520,70 540,64 C560,58 580,55 600,52 C620,48 640,50 660,55 C680,60 700,58 L700,200 Z',
+        change: '+5.67%'
+      },
+      '1m': {
+        line: 'M0,180 C20,175 40,160 60,165 C80,170 100,140 120,130 C140,120 160,125 180,110 C200,95 220,100 240,85 C260,70 280,75 300,60 C320,45 340,50 360,40 C380,30 400,35 420,55 C440,75 460,90 480,85 C500,80 520,65 540,70 C560,75 580,60 600,50 C620,40 640,45 660,55 C680,65 700,60',
+        fill: 'M0,200 L0,180 C20,175 40,160 60,165 C80,170 100,140 120,130 C140,120 160,125 180,110 C200,95 220,100 240,85 C260,70 280,75 300,60 C320,45 340,50 360,40 C380,30 400,35 420,55 C440,75 460,90 480,85 C500,80 520,65 540,70 C560,75 580,60 600,50 C620,40 640,45 660,55 C680,65 700,60 L700,200 Z',
+        change: '+2.34%'
+      },
+      '1y': {
+        line: 'M0,190 C20,185 40,170 60,175 C80,180 100,160 120,165 C140,170 160,150 180,155 C200,160 220,130 240,135 C260,140 280,100 300,105 C320,110 340,80 360,85 C380,90 400,95 420,100 C440,105 460,110 480,95 C500,80 520,65 540,60 C560,55 580,50 600,48 C620,45 640,50 660,52 C680,55 700,58',
+        fill: 'M0,200 L0,190 C20,185 40,170 60,175 C80,180 100,160 120,165 C140,170 160,150 180,155 C200,160 220,130 240,135 C260,140 280,100 300,105 C320,110 340,80 360,85 C380,90 400,95 420,100 C440,105 460,110 480,95 C500,80 520,65 540,60 C560,55 580,50 600,48 C620,45 640,50 660,52 C680,55 700,58 L700,200 Z',
+        change: '+34.21%'
+      },
+      'all': {
+        line: 'M0,195 C20,190 40,180 60,185 C80,175 100,160 120,170 C140,150 160,140 180,145 C200,130 220,120 240,125 C260,110 280,100 300,105 C320,90 340,80 360,85 C380,70 400,65 420,70 C440,60 460,55 480,58 C500,50 520,48 540,52 C560,45 580,42 600,40 C620,38 640,42 660,45 C680,48 700,50',
+        fill: 'M0,200 L0,195 C20,190 40,180 60,185 C80,175 100,160 120,170 C140,150 160,140 180,145 C200,130 220,120 240,125 C260,110 280,100 300,105 C320,90 340,80 360,85 C380,70 400,65 420,70 C440,60 460,55 480,58 C500,50 520,48 540,52 C560,45 580,42 600,40 C620,38 640,42 660,45 C680,48 700,50 L700,200 Z',
+        change: '+127.46%'
+      }
+    };
+
+    function switchChart(tf) {
+      var path = chartPaths[tf];
+      if (!path) return;
+      document.getElementById('chartPath').setAttribute('d', path.fill);
+      document.getElementById('chartLine').setAttribute('d', path.line);
+      document.getElementById('chartChange').textContent = path.change;
+      document.querySelectorAll('.chart-tf').forEach(function(b) {
+        b.classList.toggle('active', b.getAttribute('data-tf') === tf);
+      });
+    }
   </script>
 </body>
 </html>
