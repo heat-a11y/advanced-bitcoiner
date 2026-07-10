@@ -334,6 +334,7 @@
     .xnews-grid > :nth-last-child(2) {
       grid-column: span 1;
     }
+    a.xnews-card { text-decoration: none; color: inherit; display: block; }
     .xnews-card {
       background: rgba(255,255,255,.03);
       border: 1px solid rgba(255,255,255,.06);
@@ -518,7 +519,12 @@
       position: relative;
       overflow: hidden;
     }
-    .tool-card:hover {
+    a.tool-card {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    a.tool-card:hover {
       transform: translateY(-4px);
       border-color: rgba(247,147,26,.3);
       box-shadow: 0 12px 40px rgba(247,147,26,.08);
@@ -558,6 +564,7 @@
       margin: 0 auto;
       padding: 0 24px;
     }
+    a.strat-card { text-decoration: none; color: inherit; display: block; }
     .strat-card {
       border-radius: 20px;
       padding: 32px 24px;
@@ -987,13 +994,14 @@
   <!-- NAV -->
   <nav class="nav">
     <div class="nav-inner">
-      <a href="#" class="nav-logo">&#8357; Advanced Bitcoiner</a>
+      <a href="index.html" class="nav-logo">&#8357; Advanced Bitcoiner</a>
       <div class="nav-links">
-        <a href="#tools">Tools</a>
-        <a href="#strategies">Strategies</a>
-        <a href="#quiz">Quiz</a>
-        <a href="#community">Community</a>
-        <a href="#alpha" class="nav-cta">Get Alpha</a>
+        <a href="tools.html">Tools</a>
+        <a href="strategies.html">Strategies</a>
+        <a href="index.html#quiz">Quiz</a>
+        <a href="index.html#community">Community</a>
+        <a href="about.html">About</a>
+        <a href="index.html#alpha" class="nav-cta">Get Alpha</a>
       </div>
       <div class="nav-mobile">
         <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
@@ -1011,8 +1019,8 @@
     <h1>Stack sats like a<br><span>pro</span></h1>
     <p>Advanced tools, strategies, and alpha for Bitcoiners who want to go from intermediate to elite.</p>
     <div class="hero-actions">
-      <a href="#tools" class="btn btn-primary">Explore tools &#8594;</a>
-      <a href="#quiz" class="btn btn-outline-light">Test your knowledge</a>
+      <a href="tools.html" class="btn btn-primary">Explore tools &#8594;</a>
+      <a href="index.html#quiz" class="btn btn-outline-light">Test your knowledge</a>
     </div>
   </section>
 
@@ -1105,30 +1113,30 @@
     <h2 class="section-title">Built for <span>Bitcoiners</span></h2>
     <p class="section-desc">Everything you need to calculate, simulate, and optimise your stack.</p>
     <div class="tools-grid">
-      <div class="tool-card">
+      <a href="tools.html#dca-calculator" class="tool-card">
         <span class="icon">&#128200;</span>
         <h3>DCA Calculator</h3>
         <p>See how much BTC you'd have if you stacked $X daily/weekly/monthly over any period. Includes compound projections.</p>
-        <span class="tag">Coming soon</span>
-      </div>
-      <div class="tool-card">
+        <span class="tag">Interactive</span>
+      </a>
+      <a href="tools.html#position-sizer" class="tool-card">
         <span class="icon">&#128202;</span>
         <h3>Position Sizer</h3>
         <p>Calculate optimal position size based on your risk tolerance, account size, and stop-loss distance.</p>
-        <span class="tag">Coming soon</span>
-      </div>
-      <div class="tool-card">
+        <span class="tag">Interactive</span>
+      </a>
+      <a href="tools.html#fee-estimator" class="tool-card">
         <span class="icon">&#128176;</span>
         <h3>Fee Estimator</h3>
         <p>Estimate on-chain transaction fees based on mempool congestion and preferred confirmation speed.</p>
-        <span class="tag">Coming soon</span>
-      </div>
-      <div class="tool-card">
+        <span class="tag">Interactive</span>
+      </a>
+      <a href="tools.html#halving-countdown" class="tool-card">
         <span class="icon">&#128240;</span>
         <h3>Halving Countdown</h3>
         <p>Live countdown to the next Bitcoin block reward halving, with supply schedule and projected issuance.</p>
-        <span class="tag">Coming soon</span>
-      </div>
+        <span class="tag">Interactive</span>
+      </a>
     </div>
   </section>
 
@@ -1138,24 +1146,24 @@
     <h2 class="section-title">Pro <span>Strategies</span></h2>
     <p class="section-desc">Battle-tested approaches for accumulating and managing your Bitcoin stack.</p>
     <div class="strat-grid">
-      <div class="strat-card">
+      <a href="strategies.html#dca-dip-buy" class="strat-card">
         <span class="strat-icon">&#9201;</span>
         <h3>DCA + Dip Buy</h3>
         <p>Core daily DCA with extra buys on -10%+ dips. Automate it and forget it. The ultimate lazy stacker strategy.</p>
         <span class="strat-roi">Avg. +127% ROI</span>
-      </div>
-      <div class="strat-card">
+      </a>
+      <a href="strategies.html#liquidity-sweep" class="strat-card">
         <span class="strat-icon">&#128260;</span>
         <h3>Liquidity Sweep</h3>
         <p>Track bid liquidity clusters on order books. Place limit orders at sweep zones for below-market entries.</p>
         <span class="strat-roi">Avg. +89% ROI</span>
-      </div>
-      <div class="strat-card">
+      </a>
+      <a href="strategies.html#cycle-rotation" class="strat-card">
         <span class="strat-icon">&#9851;</span>
         <h3>Cycle Rotation</h3>
         <p>Rotate between BTC, ecosystem alts, and stablecoin yields based on on-chain cycle indicators.</p>
         <span class="strat-roi">Avg. +214% ROI</span>
-      </div>
+      </a>
     </div>
   </section>
 
@@ -1203,20 +1211,26 @@
         <div class="stat-label">Countries</div>
       </div>
     </div>
-    <div class="test-grid">
-      <div class="t-card">
-        <p class="t-text">"The DCA+dip strategy alone transformed my stack. This community is worth 10x any paid signal group."</p>
-        <p class="t-author">— SatoshiStacker</p>
+      <div class="test-grid">
+        <div class="t-card">
+          <p class="t-text">"The DCA+dip strategy alone transformed my stack. This community is worth 10x any paid signal group."</p>
+          <p class="t-author">— SatoshiStacker</p>
+        </div>
+        <div class="t-card">
+          <p class="t-text">"Finally a place for Bitcoiners who actually understand UTXOs, coin control, and self-custody. No memecoin noise."</p>
+          <p class="t-author">— ColdStorageKing</p>
+        </div>
+        <div class="t-card">
+          <p class="t-text">"The liquidity sweep strategy helped me buy the bottom on three separate occasions. Absolute gold."</p>
+          <p class="t-author">— OrderFlowOG</p>
+        </div>
       </div>
-      <div class="t-card">
-        <p class="t-text">"Finally a place for Bitcoiners who actually understand UTXOs, coin control, and self-custody. No memecoin noise."</p>
-        <p class="t-author">— ColdStorageKing</p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:40px">
+        <a href="https://discord.gg/bitcoin" target="_blank" rel="noopener" class="btn btn-primary" style="background:linear-gradient(135deg,#5865F2,#4752C4)">&#128172; Join Discord</a>
+        <a href="https://x.com/bitcoin" target="_blank" rel="noopener" class="btn btn-primary">&#120143; Follow on X</a>
+        <a href="https://snort.social" target="_blank" rel="noopener" class="btn btn-primary" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED)">&#9670; Nostr</a>
+        <a href="https://signal.group" target="_blank" rel="noopener" class="btn btn-primary" style="background:linear-gradient(135deg,#00D4AA,#00B894)">&#128222; Signal Group</a>
       </div>
-      <div class="t-card">
-        <p class="t-text">"The liquidity sweep strategy helped me buy the bottom on three separate occasions. Absolute gold."</p>
-        <p class="t-author">— OrderFlowOG</p>
-      </div>
-    </div>
   </section>
 
   <!-- X NEWS -->
@@ -1225,7 +1239,7 @@
     <h2 class="section-title">Latest <span>from the trenches</span></h2>
     <p class="section-desc">What the Bitcoin community is saying right now.</p>
     <div class="xnews-grid">
-      <div class="xnews-card">
+      <a href="https://x.com/BitcoinMagazine" target="_blank" rel="noopener" class="xnews-card">
         <div class="xnews-header">
           <div class="xnews-avatar btc">&#8357;</div>
           <div class="xnews-info">
@@ -1243,8 +1257,8 @@
           <span>&#9993; 892</span>
         </div>
         <div class="xnews-time">3h ago</div>
-      </div>
-      <div class="xnews-card">
+      </a>
+      <a href="https://x.com/whale_alert" target="_blank" rel="noopener" class="xnews-card">
         <div class="xnews-header">
           <div class="xnews-avatar whale">&#128129;</div>
           <div class="xnews-info">
@@ -1262,8 +1276,8 @@
           <span>&#9993; 412</span>
         </div>
         <div class="xnews-time">7h ago</div>
-      </div>
-      <div class="xnews-card">
+      </a>
+      <a href="https://x.com/BTCTnews" target="_blank" rel="noopener" class="xnews-card">
         <div class="xnews-header">
           <div class="xnews-avatar news">&#128240;</div>
           <div class="xnews-info">
@@ -1281,8 +1295,8 @@
           <span>&#9993; 1,043</span>
         </div>
         <div class="xnews-time">12h ago</div>
-      </div>
-      <div class="xnews-card">
+      </a>
+      <a href="https://x.com/hodlmemes" target="_blank" rel="noopener" class="xnews-card">
         <div class="xnews-header">
           <div class="xnews-avatar meme">&#128513;</div>
           <div class="xnews-info">
@@ -1300,8 +1314,8 @@
           <span>&#9993; 687</span>
         </div>
         <div class="xnews-time">1d ago</div>
-      </div>
-      <div class="xnews-card">
+      </a>
+      <a href="https://x.com/onchaincollege" target="_blank" rel="noopener" class="xnews-card">
         <div class="xnews-header">
           <div class="xnews-avatar chain">&#9881;</div>
           <div class="xnews-info">
@@ -1319,7 +1333,7 @@
           <span>&#9993; 356</span>
         </div>
         <div class="xnews-time">2d ago</div>
-      </div>
+      </a>
     </div>
   </section>
 
@@ -1340,36 +1354,38 @@
         <div class="logo">&#8357; Advanced Bitcoiner</div>
         <p>Tools, strategies, and alpha for Bitcoiners who take this seriously. Not financial advice.</p>
         <div class="footer-social">
-          <a href="#">&#120143;</a>
-          <a href="#">&#9670;</a>
-          <a href="#">&#10219;</a>
+          <a href="https://x.com/bitcoin" target="_blank" rel="noopener">&#120143;</a>
+          <a href="https://snort.social/p/npub..." target="_blank" rel="noopener">&#9670;</a>
+          <a href="https://t.me/bitcoin" target="_blank" rel="noopener">&#10219;</a>
         </div>
       </div>
       <div>
         <h4>Tools</h4>
         <ul>
-          <li><a href="#">Satoshi Converter</a></li>
-          <li><a href="#">DCA Calculator</a></li>
-          <li><a href="#">Position Sizer</a></li>
-          <li><a href="#">Halving Clock</a></li>
+          <li><a href="tools.html">Satoshi Converter</a></li>
+          <li><a href="tools.html#dca-calculator">DCA Calculator</a></li>
+          <li><a href="tools.html#position-sizer">Position Sizer</a></li>
+          <li><a href="tools.html#halving-countdown">Halving Clock</a></li>
         </ul>
       </div>
       <div>
         <h4>Learn</h4>
         <ul>
-          <li><a href="#">Strategies</a></li>
-          <li><a href="#">Mastery Quiz</a></li>
-          <li><a href="#">Glossary</a></li>
-          <li><a href="#">Blog</a></li>
+          <li><a href="strategies.html">Strategies</a></li>
+          <li><a href="index.html#quiz">Mastery Quiz</a></li>
+          <li><a href="glossary.html">Glossary</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
         </ul>
       </div>
       <div>
         <h4>Connect</h4>
         <ul>
-          <li><a href="#">Discord</a></li>
-          <li><a href="#">Twitter / X</a></li>
-          <li><a href="#">Nostr</a></li>
-          <li><a href="#">Signal</a></li>
+          <li><a href="https://discord.gg/bitcoin" target="_blank" rel="noopener">Discord</a></li>
+          <li><a href="https://x.com/bitcoin" target="_blank" rel="noopener">Twitter / X</a></li>
+          <li><a href="https://snort.social" target="_blank" rel="noopener">Nostr</a></li>
+          <li><a href="https://signal.group" target="_blank" rel="noopener">Signal</a></li>
         </ul>
       </div>
     </div>

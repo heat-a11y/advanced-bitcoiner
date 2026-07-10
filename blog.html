@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — Advanced Bitcoiner</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>₿</text></svg>">
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 62.5%; scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+      font-size: 1.5rem;
+      line-height: 1.5;
+      color: #fff;
+      background: #0a0a1a;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    ::selection { background: #F7931A; color: #fff; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      33% { transform: translateY(-12px) rotate(2deg); }
+      66% { transform: translateY(-6px) rotate(-1deg); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(247,147,26,.15); }
+      50% { box-shadow: 0 0 40px rgba(247,147,26,.3), 0 0 80px rgba(247,147,26,.1); }
+    }
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shimmer-bg {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes ticker-scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    @keyframes confetti-fall {
+      0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* ─── NAV ─── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,26,.85);
+      backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid rgba(247,147,26,.15);
+    }
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -.02em;
+    }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: rgba(255,255,255,.6);
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: #F7931A; }
+    .nav-cta {
+      padding: 8px 20px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      color: #0a0a1a !important;
+      font-weight: 600 !important;
+      font-size: 1.2rem !important;
+      transition: transform .3s, box-shadow .3s !important;
+    }
+    .nav-cta:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 20px rgba(247,147,26,.3);
+    }
+    .nav-mobile { display: none; }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-mobile { display: flex; align-items: center; gap: 12px; }
+      .nav-mobile svg { width: 22px; height: 22px; stroke: rgba(255,255,255,.6); fill: none; stroke-width: 1.5; }
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      text-align: center;
+      padding: 100px 24px 80px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 30%, #0a1a2e 60%, #0a0a1a 100%);
+      background-size: 400% 400%;
+      animation: shimmer-bg 15s ease infinite;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(247,147,26,.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-floating {
+      position: absolute;
+      font-size: 4rem;
+      opacity: .06;
+      animation: float 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .hero-floating:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; font-size: 5rem; }
+    .hero-floating:nth-child(2) { top: 20%; right: 8%; animation-delay: 1.5s; font-size: 3.5rem; }
+    .hero-floating:nth-child(3) { bottom: 15%; left: 12%; animation-delay: 3s; font-size: 6rem; }
+    .hero-floating:nth-child(4) { bottom: 25%; right: 5%; animation-delay: .5s; font-size: 4rem; }
+
+    .hero-kicker {
+      display: inline-block;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #F7931A;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      padding: 6px 16px;
+      border: 1px solid rgba(247,147,26,.25);
+      border-radius: 50px;
+      animation: slide-up .6s ease-out;
+    }
+    .hero h1 {
+      font-size: 5.5rem;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.05;
+      margin-bottom: 16px;
+      animation: slide-up .6s ease-out .1s both;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, #F7931A, #FFD700, #FF6B6B, #8B5CF6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      background-size: 300% 300%;
+      animation: gradient-shift 4s ease infinite;
+    }
+    .hero p {
+      font-size: 1.8rem;
+      color: rgba(255,255,255,.6);
+      max-width: 560px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+      animation: slide-up .6s ease-out .2s both;
+    }
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      animation: slide-up .6s ease-out .3s both;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-size: 1.4rem;
+      font-weight: 600;
+      transition: all .3s cubic-bezier(.25,.46,.45,.94);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      color: #0a0a1a;
+    }
+    .btn-primary:hover {
+      transform: scale(1.06);
+      box-shadow: 0 8px 32px rgba(247,147,26,.35);
+    }
+    .btn-primary:active { transform: scale(.97); }
+    .btn-outline-light {
+      border: 1.5px solid rgba(255,255,255,.2);
+      color: #fff;
+    }
+    .btn-outline-light:hover {
+      border-color: #F7931A;
+      background: rgba(247,147,26,.1);
+      transform: scale(1.04);
+    }
+
+    /* ─── TICKER ─── */
+    .ticker {
+      background: rgba(255,255,255,.03);
+      border-top: 1px solid rgba(255,255,255,.05);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      padding: 18px 24px;
+      text-align: center;
+    }
+    .ticker-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.3);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 12px;
+    }
+    .ticker-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px 24px;
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ticker-symbol {
+      font-weight: 700;
+      color: #F7931A;
+      font-size: 1.2rem;
+    }
+    .ticker-price {
+      font-weight: 500;
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.8);
+    }
+
+    /* ─── CHART ─── */
+    .chart-section {
+      background: rgba(255,255,255,.02);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .chart-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.4);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 4px;
+    }
+    .chart-price {
+      font-size: 3.2rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .chart-price span { color: #00D4AA; font-size: 1.4rem; font-weight: 500; margin-left: 8px; }
+    .chart-timeframes {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+    .chart-tf {
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: rgba(255,255,255,.4);
+      font-family: inherit;
+      transition: all .2s;
+      border: 1px solid transparent;
+    }
+    .chart-tf:hover { color: #fff; border-color: rgba(255,255,255,.1); }
+    .chart-tf.active {
+      color: #F7931A;
+      background: rgba(247,147,26,.12);
+      border-color: rgba(247,147,26,.2);
+    }
+    .chart-visual {
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .chart-visual svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 4px 40px rgba(247,147,26,.08));
+    }
+    .chart-visual svg path {
+      transition: d .5s cubic-bezier(.25,.46,.45,.94);
+    }
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      max-width: 700px;
+      margin: 4px auto 0;
+      padding: 0 10px;
+      font-size: 1rem;
+      color: rgba(255,255,255,.25);
+    }
+
+    /* ─── X NEWS ─── */
+    .xnews-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 900px;
+      margin: 0 auto 40px;
+      padding: 0 24px;
+    }
+    .xnews-grid > :nth-last-child(2) {
+      grid-column: span 1;
+    }
+    a.xnews-card { text-decoration: none; color: inherit; display: block; }
+    .xnews-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 20px;
+      transition: all .3s;
+      text-align: left;
+    }
+    .xnews-card:hover {
+      background: rgba(255,255,255,.06);
+      transform: translateY(-3px);
+      border-color: rgba(247,147,26,.15);
+    }
+    .xnews-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .xnews-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .xnews-avatar.btc { background: rgba(247,147,26,.2); }
+    .xnews-avatar.whale { background: rgba(0,212,170,.2); }
+    .xnews-avatar.news { background: rgba(139,92,246,.2); }
+    .xnews-avatar.meme { background: rgba(255,107,107,.2); }
+    .xnews-avatar.chain { background: rgba(0,200,255,.2); }
+    .xnews-info { flex: 1; min-width: 0; }
+    .xnews-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .xnews-name span { color: rgba(255,255,255,.4); font-weight: 400; font-size: 1.05rem; }
+    .xnews-handle {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.35);
+    }
+    .xnews-x {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,.25);
+      flex-shrink: 0;
+    }
+    .xnews-body {
+      font-size: 1.25rem;
+      color: rgba(255,255,255,.75);
+      line-height: 1.55;
+      margin-bottom: 12px;
+    }
+    .xnews-body strong { color: #F7931A; font-weight: 600; }
+    .xnews-body .cashtag { color: #F7931A; }
+    .xnews-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.3);
+    }
+    .xnews-meta span { display: flex; align-items: center; gap: 4px; }
+    .xnews-time {
+      font-size: 1rem;
+      color: rgba(255,255,255,.25);
+      margin-top: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .xnews-grid { grid-template-columns: 1fr; max-width: 400px; }
+    }
+
+    /* ─── SECTION ─── */
+    .section { padding: 100px 0; }
+    .section-dark { background: #0a0a1a; }
+    .section-card-bg { background: rgba(255,255,255,.02); }
+
+    .section-label {
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #F7931A;
+      letter-spacing: .04em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .section-title {
+      text-align: center;
+      font-size: 4rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .section-title span {
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-desc {
+      text-align: center;
+      font-size: 1.7rem;
+      color: rgba(255,255,255,.5);
+      max-width: 560px;
+      margin: 0 auto 60px;
+      line-height: 1.6;
+    }
+
+    /* ─── CONVERTER ─── */
+    .converter-wrap {
+      max-width: 600px;
+      margin: 0 auto;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 24px;
+      padding: 40px 36px;
+      transition: box-shadow .4s, transform .3s;
+    }
+    .converter-wrap:hover {
+      box-shadow: 0 16px 60px rgba(247,147,26,.08);
+      transform: translateY(-2px);
+    }
+    .converter-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .converter-row:last-child { margin-bottom: 0; }
+    .converter-input {
+      flex: 1;
+      padding: 16px 20px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
+      color: #fff;
+      font-size: 1.6rem;
+      font-weight: 600;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .3s;
+    }
+    .converter-input:focus {
+      border-color: #F7931A;
+    }
+    .converter-input::placeholder { color: rgba(255,255,255,.2); font-weight: 400; }
+    .converter-label {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.5);
+      min-width: 60px;
+      text-align: right;
+    }
+    .converter-eq {
+      text-align: center;
+      color: rgba(255,255,255,.2);
+      font-size: 1.3rem;
+      padding: 4px 0;
+    }
+
+    /* ─── TOOLS GRID ─── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .tool-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 32px 28px;
+      transition: all .3s cubic-bezier(.25,.46,.45,.94);
+      position: relative;
+      overflow: hidden;
+    }
+    a.tool-card {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    a.tool-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(247,147,26,.3);
+      box-shadow: 0 12px 40px rgba(247,147,26,.08);
+    }
+    .tool-card .icon {
+      font-size: 2.4rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .tool-card h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .tool-card p {
+      font-size: 1.3rem;
+      color: rgba(255,255,255,.5);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .tool-card .tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      background: rgba(247,147,26,.15);
+      color: #F7931A;
+    }
+
+    /* ─── STRATEGY CARDS ─── */
+    .strat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    a.strat-card { text-decoration: none; color: inherit; display: block; }
+    .strat-card {
+      border-radius: 20px;
+      padding: 32px 24px;
+      text-align: center;
+      transition: all .4s cubic-bezier(.25,.46,.45,.94);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    .strat-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: .05;
+      transition: opacity .4s;
+    }
+    .strat-card:hover::before { opacity: .12; }
+    .strat-card:nth-child(1) { background: linear-gradient(180deg, rgba(247,147,26,.08), transparent); }
+    .strat-card:nth-child(2) { background: linear-gradient(180deg, rgba(0,212,170,.08), transparent); }
+    .strat-card:nth-child(3) { background: linear-gradient(180deg, rgba(139,92,246,.08), transparent); }
+    .strat-card:hover {
+      transform: translateY(-6px) scale(1.01);
+    }
+    .strat-card:nth-child(1):hover { box-shadow: 0 16px 48px rgba(247,147,26,.15); }
+    .strat-card:nth-child(2):hover { box-shadow: 0 16px 48px rgba(0,212,170,.15); }
+    .strat-card:nth-child(3):hover { box-shadow: 0 16px 48px rgba(139,92,246,.15); }
+    .strat-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .strat-card h3 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .strat-card p {
+      font-size: 1.3rem;
+      color: rgba(255,255,255,.5);
+      line-height: 1.6;
+    }
+    .strat-roi {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 4px 14px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .strat-card:nth-child(1) .strat-roi { background: rgba(247,147,26,.15); color: #F7931A; }
+    .strat-card:nth-child(2) .strat-roi { background: rgba(0,212,170,.15); color: #00D4AA; }
+    .strat-card:nth-child(3) .strat-roi { background: rgba(139,92,246,.15); color: #8B5CF6; }
+
+    /* ─── QUIZ ─── */
+    .quiz-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 24px;
+      padding: 40px 36px;
+    }
+    .quiz-progress {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+    .quiz-dot {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,.1);
+      transition: background .3s;
+    }
+    .quiz-dot.done { background: #F7931A; }
+    .quiz-dot.active { background: #FFD700; }
+    .quiz-q {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      min-height: 4rem;
+    }
+    .quiz-opts {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .quiz-opt {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 16px 20px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
+      color: #fff;
+      font-size: 1.5rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .25s;
+    }
+    .quiz-opt:hover {
+      border-color: rgba(247,147,26,.4);
+      background: rgba(247,147,26,.06);
+      transform: translateX(4px);
+    }
+    .quiz-opt.selected {
+      border-color: #F7931A;
+      background: rgba(247,147,26,.15);
+    }
+    .quiz-opt.correct {
+      border-color: #00D4AA;
+      background: rgba(0,212,170,.12);
+    }
+    .quiz-opt.wrong {
+      border-color: #FF6B6B;
+      background: rgba(255,107,107,.12);
+    }
+    .quiz-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .quiz-back {
+      font-size: 1.3rem;
+      color: rgba(255,255,255,.4);
+      padding: 8px 0;
+      transition: color .2s;
+    }
+    .quiz-back:hover { color: #fff; }
+    .quiz-next {
+      padding: 12px 32px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      color: #0a0a1a;
+      font-size: 1.35rem;
+      font-weight: 600;
+      transition: all .3s;
+    }
+    .quiz-next:hover:not(:disabled) {
+      transform: scale(1.04);
+      box-shadow: 0 8px 24px rgba(247,147,26,.3);
+    }
+    .quiz-next:disabled {
+      opacity: .35;
+      cursor: default;
+    }
+    .quiz-score {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.04);
+    }
+    .quiz-restart {
+      display: block;
+      margin: 16px auto 0;
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.4);
+      font-family: inherit;
+      transition: color .2s;
+    }
+    .quiz-restart:hover { color: #F7931A; }
+
+    /* ─── COMMUNITY ─── */
+    .community-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 700px;
+      margin: 0 auto 60px;
+      padding: 0 24px;
+    }
+    .stat-card {
+      text-align: center;
+      padding: 28px 20px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      transition: all .3s;
+    }
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(247,147,26,.2);
+    }
+    .stat-number {
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.5);
+      margin-top: 4px;
+    }
+
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .t-card {
+      padding: 24px 20px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      transition: all .3s;
+    }
+    .t-card:hover {
+      background: rgba(255,255,255,.06);
+      transform: translateY(-3px);
+    }
+    .t-text {
+      font-size: 1.3rem;
+      color: rgba(255,255,255,.6);
+      line-height: 1.6;
+      margin-bottom: 12px;
+      font-style: italic;
+    }
+    .t-author {
+      font-size: 1.1rem;
+      color: #F7931A;
+      font-weight: 500;
+    }
+
+    /* ─── DONATION ─── */
+    .donation {
+      max-width: 500px;
+      margin: 32px auto 0;
+      text-align: center;
+      padding: 28px 24px;
+      border-radius: 20px;
+      background: rgba(247,147,26,.05);
+      border: 1px solid rgba(247,147,26,.15);
+      transition: all .3s;
+    }
+    .donation:hover {
+      border-color: rgba(247,147,26,.3);
+      box-shadow: 0 8px 32px rgba(247,147,26,.06);
+    }
+    .donation-icon {
+      font-size: 2.4rem;
+      margin-bottom: 6px;
+    }
+    .donation-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #F7931A;
+      margin-bottom: 6px;
+    }
+    .donation-desc {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.5);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .donation-addr {
+      font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+      font-size: 1.1rem;
+      color: #fff;
+      background: rgba(255,255,255,.05);
+      padding: 12px 16px;
+      border-radius: 12px;
+      word-break: break-all;
+      letter-spacing: .02em;
+      margin-bottom: 12px;
+      user-select: all;
+    }
+    .donation-copy {
+      padding: 8px 20px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      color: #0a0a1a;
+      font-size: 1.2rem;
+      font-weight: 600;
+      font-family: inherit;
+      transition: all .3s;
+    }
+    .donation-copy:hover {
+      transform: scale(1.04);
+      box-shadow: 0 4px 16px rgba(247,147,26,.25);
+    }
+    .donation-copy.copied {
+      background: #00D4AA;
+    }
+
+    /* ─── NEWSLETTER ─── */
+    .newsletter {
+      text-align: center;
+      padding: 100px 24px;
+      background: linear-gradient(180deg, rgba(247,147,26,.05), transparent);
+    }
+    .newsletter h2 {
+      font-size: 3.6rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .newsletter p {
+      font-size: 1.6rem;
+      color: rgba(255,255,255,.5);
+      margin-bottom: 28px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .newsletter form {
+      display: flex;
+      max-width: 420px;
+      margin: 0 auto;
+      gap: 8px;
+    }
+    .newsletter input {
+      flex: 1;
+      padding: 14px 20px;
+      border-radius: 50px;
+      border: 1.5px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
+      color: #fff;
+      font-size: 1.4rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .3s;
+    }
+    .newsletter input:focus { border-color: #F7931A; }
+    .newsletter input::placeholder { color: rgba(255,255,255,.2); }
+    .newsletter button {
+      padding: 14px 28px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      color: #0a0a1a;
+      font-size: 1.3rem;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all .3s;
+    }
+    .newsletter button:hover {
+      transform: scale(1.04);
+      box-shadow: 0 8px 24px rgba(247,147,26,.3);
+    }
+
+    @media (max-width: 640px) {
+      .newsletter form { flex-direction: column; }
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      background: rgba(255,255,255,.02);
+      border-top: 1px solid rgba(255,255,255,.05);
+      padding: 50px 0 0;
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.4);
+    }
+    .footer-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px 40px;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+    }
+    .footer-brand .logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .footer-brand p { max-width: 260px; margin-top: 8px; line-height: 1.6; }
+    .footer h4 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .footer ul { list-style: none; }
+    .footer li { margin-bottom: 6px; }
+    .footer a { transition: color .2s; }
+    .footer a:hover { color: #F7931A; }
+    .footer-social { display: flex; gap: 12px; margin-top: 14px; }
+    .footer-social a {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .3s;
+      font-size: 1.4rem;
+    }
+    .footer-social a:hover {
+      background: #F7931A;
+      transform: translateY(-3px);
+    }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.05);
+      padding: 20px 24px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 3.4rem; }
+      .section-title { font-size: 2.6rem; }
+      .tools-grid { grid-template-columns: 1fr; }
+      .strat-grid { grid-template-columns: 1fr; max-width: 400px; }
+      .community-stats { grid-template-columns: 1fr; max-width: 300px; }
+      .test-grid { grid-template-columns: 1fr; max-width: 400px; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .footer-inner { grid-template-columns: 1fr; }
+    }
+
+    /* ─── BLOG PAGE ADDITIONS ─── */
+    :root { --orange: #F7931A; --gold: #FFD700; --dark: #0a0a1a; }
+
+    .blog-page {
+      padding: 120px 24px 80px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .blog-page h2 {
+      font-size: 2.8rem;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .blog-page h2 span { color: var(--orange); }
+    .blog-page > .sub {
+      text-align: center;
+      color: rgba(255,255,255,.5);
+      font-size: 1.4rem;
+      margin-bottom: 48px;
+    }
+    .blog-post {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 32px 28px;
+      margin-bottom: 24px;
+      transition: all .3s;
+    }
+    .blog-post:hover { border-color: rgba(247,147,26,.2); }
+    .blog-post .post-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.3);
+      margin-bottom: 8px;
+    }
+    .blog-post .post-meta .cat {
+      color: var(--orange);
+      font-weight: 600;
+    }
+    .blog-post h3 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .blog-post h3 a {
+      color: #fff;
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .blog-post h3 a:hover { color: var(--orange); }
+    .blog-post p {
+      color: rgba(255,255,255,.5);
+      font-size: 1.35rem;
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+    .blog-post .read-more {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--orange);
+      font-weight: 600;
+      font-size: 1.3rem;
+      text-decoration: none;
+    }
+    .blog-post .read-more:hover { gap: 8px; }
+
+    .blog-article {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .blog-article .post-header {
+      margin-bottom: 32px;
+    }
+    .blog-article .post-header h3 {
+      font-size: 2.6rem;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+    .blog-article .post-body {
+      font-size: 1.5rem;
+      line-height: 1.9;
+      color: rgba(255,255,255,.6);
+    }
+    .blog-article .post-body p {
+      margin-bottom: 20px;
+    }
+    .blog-article .post-body h4 {
+      font-size: 1.8rem;
+      color: #fff;
+      margin: 32px 0 12px;
+    }
+    .blog-article .post-body ul {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 20px;
+    }
+    .blog-article .post-body ul li {
+      padding: 6px 0 6px 24px;
+      position: relative;
+      font-size: 1.45rem;
+    }
+    .blog-article .post-body ul li::before {
+      content: '\2192';
+      position: absolute;
+      left: 0;
+      color: var(--orange);
+    }
+    .blog-article .post-body .highlight-box {
+      background: rgba(247,147,26,.05);
+      border-left: 3px solid var(--orange);
+      padding: 20px 24px;
+      border-radius: 8px;
+      margin: 24px 0;
+      font-size: 1.4rem;
+      color: rgba(255,255,255,.5);
+    }
+    .blog-article .post-body .highlight-box strong { color: var(--orange); }
+    .blog-article .post-nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .blog-article .post-nav a {
+      color: var(--orange);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.4rem;
+    }
+    .blog-article .post-nav a:hover { text-decoration: underline; }
+    .post-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      background: rgba(247,147,26,.15);
+      color: var(--orange);
+      margin-right: 6px;
+    }
+    @media (max-width: 600px) {
+      .blog-page { padding: 100px 16px 60px; }
+      .blog-post { padding: 24px 18px; }
+    }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">&#8357; Advanced Bitcoiner</a>
+      <div class="nav-links">
+        <a href="tools.html">Tools</a>
+        <a href="strategies.html">Strategies</a>
+        <a href="index.html#quiz">Quiz</a>
+      <a href="index.html#community">Community</a>
+      <a href="about.html">About</a>
+      <a href="index.html#alpha" class="nav-cta">Get Alpha</a>
+      </div>
+      <div class="nav-mobile">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </div>
+    </div>
+  </nav>
+
+<!-- BLOG CONTENT -->
+<section class="blog-page" id="top">
+  <h2>Advanced <span>Bitcoin Blog</span></h2>
+  <p class="sub">Deep dives, tutorials, and analysis for serious Bitcoiners.</p>
+
+  <!-- POST 1 -->
+  <div class="blog-post">
+    <div class="post-meta"><span class="cat">Education</span> <span>&middot;</span> <span>12 min read</span></div>
+    <h3><a href="blog.html#understanding-utxos">Understanding UTXOs: The Building Blocks of Bitcoin Transactions</a></h3>
+    <p>Most Bitcoin users don't think about UTXOs until something goes wrong — a transaction that won't confirm, unexpectedly high fees, or a wallet that shows a bizarre number of tiny balances. This guide breaks down the UTXO model from the ground up.</p>
+    <div><span class="post-tag">UTXO</span><span class="post-tag">Coin Control</span><span class="post-tag">Fees</span></div>
+    <a href="blog.html#understanding-utxos" class="read-more">Read more &rarr;</a>
+  </div>
+
+  <div class="blog-article" id="understanding-utxos" style="display:none">
+    <div class="post-header">
+      <div class="post-meta"><span class="cat">Education</span> <span>&middot;</span> <span>12 min read</span></div>
+      <h3>Understanding UTXOs: The Building Blocks of Bitcoin Transactions</h3>
+    </div>
+    <div class="post-body">
+      <p>Every Bitcoin user has experienced the confusion: you receive 0.1 BTC from one source and 0.05 BTC from another, but your wallet shows a single balance of 0.15 BTC. Under the hood, those are two distinct "coins" called UTXOs — and understanding them is fundamental to mastering Bitcoin.</p>
+
+      <h4>What is a UTXO?</h4>
+      <p>UTXO stands for Unspent Transaction Output. Think of it like physical cash: if someone pays you $20 with a $20 bill, you now hold that bill. You can't spend $15 of it — you have to spend the whole $20 bill and get $5 in change. Bitcoin UTXOs work the same way. Each UTXO is a discrete, indivisible chunk of bitcoin that you control.</p>
+
+      <h4>How UTXOs Work in Practice</h4>
+      <ul>
+        <li>When you receive Bitcoin, you create a new UTXO controlled by your private key.</li>
+        <li>When you spend Bitcoin, you consume one or more UTXOs as inputs.</li>
+        <li>Any excess value goes to a change address (a new UTXO back to you).</li>
+        <li>Miners verify that the UTXOs you're spending actually exist and belong to you.</li>
+      </ul>
+
+      <div class="highlight-box">
+        <strong>Real example:</strong> You have two UTXOs: 0.3 BTC and 0.2 BTC. You want to send 0.4 BTC. Your wallet will use both UTXOs (total 0.5 BTC), creating one output of 0.4 BTC to the recipient and one change output of ~0.0999 BTC back to you (minus fees).
+      </div>
+
+      <h4>Why UTXOs Matter</h4>
+      <p>Your transaction fee depends partly on the number of UTXOs you consume as inputs. Each input adds bytes to your transaction. If you have many small UTXOs (e.g., 50 micro-payments of 0.001 BTC each), spending them all at once creates a large, expensive transaction. This is called UTXO bloat.</p>
+
+      <h4>Managing UTXOs</h4>
+      <p>Good UTXO management (coin control) helps you: consolidate small UTXOs during low-fee periods, avoid linking transactions (privacy), optimize fee spending, and keep your wallet clean. Wallets like Sparrow and Electrum offer excellent coin control features.</p>
+    </div>
+    <div class="post-nav">
+      <a href="blog.html#top">&larr; Back to articles</a>
+      <a href="blog.html#guide-to-taproot">Next article &rarr;</a>
+    </div>
+  </div>
+
+  <!-- POST 2 -->
+  <div class="blog-post">
+    <div class="post-meta"><span class="cat">Technical</span> <span>&middot;</span> <span>8 min read</span></div>
+    <h3><a href="blog.html#guide-to-taproot">The Complete Guide to Taproot: Bitcoin's Privacy Upgrade</a></h3>
+    <p>Activated in November 2021, Taproot was Bitcoin's most significant upgrade since SegWit. Yet most users don't understand how it works or why it matters. Here's everything you need to know about Schnorr signatures, MAST, and the future of Bitcoin smart contracts.</p>
+    <div><span class="post-tag">Taproot</span><span class="post-tag">Privacy</span><span class="post-tag">Technical</span></div>
+    <a href="blog.html#guide-to-taproot" class="read-more">Read more &rarr;</a>
+  </div>
+
+  <div class="blog-article" id="guide-to-taproot" style="display:none">
+    <div class="post-header">
+      <div class="post-meta"><span class="cat">Technical</span> <span>&middot;</span> <span>8 min read</span></div>
+      <h3>The Complete Guide to Taproot: Bitcoin's Privacy Upgrade</h3>
+    </div>
+    <div class="post-body">
+      <p>Taproot took over three years to design, implement, and activate — and for good reason. It represents a fundamental improvement to Bitcoin's scripting capabilities while simultaneously enhancing transaction privacy.</p>
+
+      <h4>What Taproot Changed</h4>
+      <p>Taproot introduced three key Bitcoin Improvement Proposals: BIP340 (Schnorr Signatures), BIP341 (Taproot Outputs), and BIP342 (Tapscript). Together, they make complex Bitcoin transactions look identical to simple ones on the blockchain.</p>
+
+      <h4>Schnorr Signatures</h4>
+      <p>Before Taproot, Bitcoin used ECDSA signatures. Schnorr signatures offer several advantages: they're slightly smaller, they support signature aggregation (multiple signers look like one), and they enable batch verification (faster for nodes).</p>
+
+      <div class="highlight-box">
+        <strong>Key insight:</strong> With Schnorr aggregation, a 3-of-3 multisig transaction produces a single signature that looks identical to a regular single-signer transaction. This is a massive privacy win.
+      </div>
+
+      <h4>MAST (Merkelized Abstract Syntax Trees)</h4>
+      <p>MAST allows Bitcoin smart contracts to reveal only the executed branch of a complex script. If a 2-of-3 multisig spends normally, the blockchain only shows the path that was taken — not the full contract structure. This reduces transaction size and improves privacy.</p>
+
+      <h4>Practical Impact</h4>
+      <p>Taproot enables more sophisticated on-chain contracts: DLCs (Discreet Log Contracts) for decentralized derivatives, time-locked vaults for security, and more efficient Lightning Network channel opens. Adoption is growing steadily, with Taproot transactions now representing over 10% of all Bitcoin transactions.</p>
+    </div>
+    <div class="post-nav">
+      <a href="blog.html#top">&larr; Back to articles</a>
+      <a href="blog.html#mastering-coin-control">Next article &rarr;</a>
+    </div>
+  </div>
+
+  <!-- POST 3 -->
+  <div class="blog-post">
+    <div class="post-meta"><span class="cat">Privacy</span> <span>&middot;</span> <span>10 min read</span></div>
+    <h3><a href="blog.html#mastering-coin-control">Mastering Coin Control: Why Every Bitcoiner Needs It</a></h3>
+    <p>Your wallet picks UTXOs automatically — and that's a problem. Coin control gives you the power to choose which UTXOs to spend, protecting your privacy and optimizing your fees. Here's how the pros manage their stacks.</p>
+    <div><span class="post-tag">Privacy</span><span class="post-tag">Coin Control</span><span class="post-tag">Advanced</span></div>
+    <a href="blog.html#mastering-coin-control" class="read-more">Read more &rarr;</a>
+  </div>
+
+  <div class="blog-article" id="mastering-coin-control" style="display:none">
+    <div class="post-header">
+      <div class="post-meta"><span class="cat">Privacy</span> <span>&middot;</span> <span>10 min read</span></div>
+      <h3>Mastering Coin Control: Why Every Bitcoiner Needs It</h3>
+    </div>
+    <div class="post-body">
+      <p>When you click "send" in most wallets, software automatically selects which UTXOs to use as inputs. This convenience comes at a cost: it can destroy your privacy, link your addresses together, and cost you more in fees than necessary.</p>
+
+      <h4>The Problem with Automatic Selection</h4>
+      <p>Bitcoin is pseudonymous, not anonymous. Every transaction is permanently visible on the blockchain. When your wallet automatically selects UTXOs, it often combines coins from different sources into one transaction — linking those addresses forever. Chain analysis firms exploit this to trace Bitcoin flows.</p>
+
+      <h4>Coin Control Best Practices</h4>
+      <ul>
+        <li>Keep "clean" coins (from trusted sources like DCA on regulated exchanges) separate from "mixed" or privacy-sensitive coins.</li>
+        <li>Use different UTXOs for different purposes (savings, spending, privacy).</li>
+        <li>Consolidate small UTXOs only during low-fee periods, and send them to a new address in your wallet.</li>
+        <li>Consider using a wallet like Sparrow or Electrum that gives you full coin control.</li>
+      </ul>
+
+      <h4>Tools for Coin Control</h4>
+      <p>Sparrow Wallet is the gold standard for coin control on desktop, offering visual UTXO management, labeling, and "coin selection by list." For mobile, BlueWallet provides basic coin control. For the truly advanced, Bitcoin Core with a descriptor wallet offers complete control.</p>
+
+      <div class="highlight-box">
+        <strong>Pro tip:</strong> Label your UTXOs! When you receive Bitcoin, add a note about where it came from. This makes coin control decisions trivially easy when you need to spend.
+      </div>
+    </div>
+    <div class="post-nav">
+      <a href="blog.html#top">&larr; Back to articles</a>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:48px;padding:32px;background:rgba(247,147,26,.05);border-radius:20px;border:1px solid rgba(247,147,26,.15)">
+    <h3 style="font-size:2rem;margin-bottom:8px">&#128240; Get notified of new posts</h3>
+    <p style="color:rgba(255,255,255,.5);font-size:1.35rem;margin-bottom:20px">Subscribe to the alpha newsletter for weekly articles.</p>
+    <a href="index.html#alpha" class="btn btn-primary">Subscribe &rarr;</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="logo">&#8357; Advanced Bitcoiner</div>
+        <p>Tools, strategies, and alpha for Bitcoiners who take this seriously. Not financial advice.</p>
+        <div class="footer-social">
+          <a href="https://x.com/bitcoin" target="_blank" rel="noopener">&#120143;</a>
+          <a href="https://snort.social/p/npub..." target="_blank" rel="noopener">&#9670;</a>
+          <a href="https://t.me/bitcoin" target="_blank" rel="noopener">&#10219;</a>
+        </div>
+      </div>
+      <div>
+        <h4>Tools</h4>
+        <ul>
+          <li><a href="tools.html">Satoshi Converter</a></li>
+          <li><a href="tools.html#dca-calculator">DCA Calculator</a></li>
+          <li><a href="tools.html#position-sizer">Position Sizer</a></li>
+          <li><a href="tools.html#halving-countdown">Halving Clock</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Learn</h4>
+        <ul>
+          <li><a href="strategies.html">Strategies</a></li>
+          <li><a href="index.html#quiz">Mastery Quiz</a></li>
+          <li><a href="glossary.html">Glossary</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="https://discord.gg/bitcoin" target="_blank" rel="noopener">Discord</a></li>
+          <li><a href="https://x.com/bitcoin" target="_blank" rel="noopener">Twitter / X</a></li>
+          <li><a href="https://snort.social" target="_blank" rel="noopener">Nostr</a></li>
+          <li><a href="https://signal.group" target="_blank" rel="noopener">Signal</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Advanced Bitcoiner. Stack sats, not shit. &#8357;</p>
+    </div>
+  </footer>
+
+<script>
+function toggleArticle() {
+  var hash = window.location.hash;
+  var articles = document.querySelectorAll('.blog-article');
+  var posts = document.querySelectorAll('.blog-post');
+
+  articles.forEach(function(a) { a.style.display = 'none'; });
+  posts.forEach(function(p) { p.style.display = 'block'; });
+
+  if (hash && hash.length > 1) {
+    var target = document.getElementById(hash.substring(1));
+    if (target && target.classList.contains('blog-article')) {
+      target.style.display = 'block';
+      target.closest('.blog-page').scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+}
+
+window.addEventListener('hashchange', toggleArticle);
+toggleArticle();
+</script>
+
+</body>
+</html>

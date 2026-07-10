@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glossary — Advanced Bitcoiner</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>₿</text></svg>">
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 62.5%; scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+      font-size: 1.5rem;
+      line-height: 1.5;
+      color: #fff;
+      background: #0a0a1a;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    ::selection { background: #F7931A; color: #fff; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      33% { transform: translateY(-12px) rotate(2deg); }
+      66% { transform: translateY(-6px) rotate(-1deg); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(247,147,26,.15); }
+      50% { box-shadow: 0 0 40px rgba(247,147,26,.3), 0 0 80px rgba(247,147,26,.1); }
+    }
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shimmer-bg {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes ticker-scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    @keyframes confetti-fall {
+      0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* ─── NAV ─── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,26,.85);
+      backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid rgba(247,147,26,.15);
+    }
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -.02em;
+    }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: rgba(255,255,255,.6);
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: #F7931A; }
+    .nav-cta {
+      padding: 8px 20px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      color: #0a0a1a !important;
+      font-weight: 600 !important;
+      font-size: 1.2rem !important;
+      transition: transform .3s, box-shadow .3s !important;
+    }
+    .nav-cta:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 20px rgba(247,147,26,.3);
+    }
+    .nav-mobile { display: none; }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-mobile { display: flex; align-items: center; gap: 12px; }
+      .nav-mobile svg { width: 22px; height: 22px; stroke: rgba(255,255,255,.6); fill: none; stroke-width: 1.5; }
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      text-align: center;
+      padding: 100px 24px 80px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 30%, #0a1a2e 60%, #0a0a1a 100%);
+      background-size: 400% 400%;
+      animation: shimmer-bg 15s ease infinite;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(247,147,26,.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-floating {
+      position: absolute;
+      font-size: 4rem;
+      opacity: .06;
+      animation: float 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .hero-floating:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; font-size: 5rem; }
+    .hero-floating:nth-child(2) { top: 20%; right: 8%; animation-delay: 1.5s; font-size: 3.5rem; }
+    .hero-floating:nth-child(3) { bottom: 15%; left: 12%; animation-delay: 3s; font-size: 6rem; }
+    .hero-floating:nth-child(4) { bottom: 25%; right: 5%; animation-delay: .5s; font-size: 4rem; }
+
+    .hero-kicker {
+      display: inline-block;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #F7931A;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      padding: 6px 16px;
+      border: 1px solid rgba(247,147,26,.25);
+      border-radius: 50px;
+      animation: slide-up .6s ease-out;
+    }
+    .hero h1 {
+      font-size: 5.5rem;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.05;
+      margin-bottom: 16px;
+      animation: slide-up .6s ease-out .1s both;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, #F7931A, #FFD700, #FF6B6B, #8B5CF6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      background-size: 300% 300%;
+      animation: gradient-shift 4s ease infinite;
+    }
+    .hero p {
+      font-size: 1.8rem;
+      color: rgba(255,255,255,.6);
+      max-width: 560px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+      animation: slide-up .6s ease-out .2s both;
+    }
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      animation: slide-up .6s ease-out .3s both;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-size: 1.4rem;
+      font-weight: 600;
+      transition: all .3s cubic-bezier(.25,.46,.45,.94);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      color: #0a0a1a;
+    }
+    .btn-primary:hover {
+      transform: scale(1.06);
+      box-shadow: 0 8px 32px rgba(247,147,26,.35);
+    }
+    .btn-primary:active { transform: scale(.97); }
+    .btn-outline-light {
+      border: 1.5px solid rgba(255,255,255,.2);
+      color: #fff;
+    }
+    .btn-outline-light:hover {
+      border-color: #F7931A;
+      background: rgba(247,147,26,.1);
+      transform: scale(1.04);
+    }
+
+    /* ─── TICKER ─── */
+    .ticker {
+      background: rgba(255,255,255,.03);
+      border-top: 1px solid rgba(255,255,255,.05);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      padding: 18px 24px;
+      text-align: center;
+    }
+    .ticker-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.3);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 12px;
+    }
+    .ticker-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px 24px;
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ticker-symbol {
+      font-weight: 700;
+      color: #F7931A;
+      font-size: 1.2rem;
+    }
+    .ticker-price {
+      font-weight: 500;
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.8);
+    }
+
+    /* ─── CHART ─── */
+    .chart-section {
+      background: rgba(255,255,255,.02);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .chart-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.4);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 4px;
+    }
+    .chart-price {
+      font-size: 3.2rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .chart-price span { color: #00D4AA; font-size: 1.4rem; font-weight: 500; margin-left: 8px; }
+    .chart-timeframes {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+    .chart-tf {
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: rgba(255,255,255,.4);
+      font-family: inherit;
+      transition: all .2s;
+      border: 1px solid transparent;
+    }
+    .chart-tf:hover { color: #fff; border-color: rgba(255,255,255,.1); }
+    .chart-tf.active {
+      color: #F7931A;
+      background: rgba(247,147,26,.12);
+      border-color: rgba(247,147,26,.2);
+    }
+    .chart-visual {
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .chart-visual svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 4px 40px rgba(247,147,26,.08));
+    }
+    .chart-visual svg path {
+      transition: d .5s cubic-bezier(.25,.46,.45,.94);
+    }
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      max-width: 700px;
+      margin: 4px auto 0;
+      padding: 0 10px;
+      font-size: 1rem;
+      color: rgba(255,255,255,.25);
+    }
+
+    /* ─── X NEWS ─── */
+    .xnews-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 900px;
+      margin: 0 auto 40px;
+      padding: 0 24px;
+    }
+    .xnews-grid > :nth-last-child(2) {
+      grid-column: span 1;
+    }
+    a.xnews-card { text-decoration: none; color: inherit; display: block; }
+    .xnews-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 20px;
+      transition: all .3s;
+      text-align: left;
+    }
+    .xnews-card:hover {
+      background: rgba(255,255,255,.06);
+      transform: translateY(-3px);
+      border-color: rgba(247,147,26,.15);
+    }
+    .xnews-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .xnews-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .xnews-avatar.btc { background: rgba(247,147,26,.2); }
+    .xnews-avatar.whale { background: rgba(0,212,170,.2); }
+    .xnews-avatar.news { background: rgba(139,92,246,.2); }
+    .xnews-avatar.meme { background: rgba(255,107,107,.2); }
+    .xnews-avatar.chain { background: rgba(0,200,255,.2); }
+    .xnews-info { flex: 1; min-width: 0; }
+    .xnews-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .xnews-name span { color: rgba(255,255,255,.4); font-weight: 400; font-size: 1.05rem; }
+    .xnews-handle {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.35);
+    }
+    .xnews-x {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,.25);
+      flex-shrink: 0;
+    }
+    .xnews-body {
+      font-size: 1.25rem;
+      color: rgba(255,255,255,.75);
+      line-height: 1.55;
+      margin-bottom: 12px;
+    }
+    .xnews-body strong { color: #F7931A; font-weight: 600; }
+    .xnews-body .cashtag { color: #F7931A; }
+    .xnews-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.3);
+    }
+    .xnews-meta span { display: flex; align-items: center; gap: 4px; }
+    .xnews-time {
+      font-size: 1rem;
+      color: rgba(255,255,255,.25);
+      margin-top: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .xnews-grid { grid-template-columns: 1fr; max-width: 400px; }
+    }
+
+    /* ─── SECTION ─── */
+    .section { padding: 100px 0; }
+    .section-dark { background: #0a0a1a; }
+    .section-card-bg { background: rgba(255,255,255,.02); }
+
+    .section-label {
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #F7931A;
+      letter-spacing: .04em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .section-title {
+      text-align: center;
+      font-size: 4rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .section-title span {
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-desc {
+      text-align: center;
+      font-size: 1.7rem;
+      color: rgba(255,255,255,.5);
+      max-width: 560px;
+      margin: 0 auto 60px;
+      line-height: 1.6;
+    }
+
+    /* ─── CONVERTER ─── */
+    .converter-wrap {
+      max-width: 600px;
+      margin: 0 auto;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 24px;
+      padding: 40px 36px;
+      transition: box-shadow .4s, transform .3s;
+    }
+    .converter-wrap:hover {
+      box-shadow: 0 16px 60px rgba(247,147,26,.08);
+      transform: translateY(-2px);
+    }
+    .converter-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .converter-row:last-child { margin-bottom: 0; }
+    .converter-input {
+      flex: 1;
+      padding: 16px 20px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
+      color: #fff;
+      font-size: 1.6rem;
+      font-weight: 600;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .3s;
+    }
+    .converter-input:focus {
+      border-color: #F7931A;
+    }
+    .converter-input::placeholder { color: rgba(255,255,255,.2); font-weight: 400; }
+    .converter-label {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.5);
+      min-width: 60px;
+      text-align: right;
+    }
+    .converter-eq {
+      text-align: center;
+      color: rgba(255,255,255,.2);
+      font-size: 1.3rem;
+      padding: 4px 0;
+    }
+
+    /* ─── TOOLS GRID ─── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .tool-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 32px 28px;
+      transition: all .3s cubic-bezier(.25,.46,.45,.94);
+      position: relative;
+      overflow: hidden;
+    }
+    a.tool-card {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    a.tool-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(247,147,26,.3);
+      box-shadow: 0 12px 40px rgba(247,147,26,.08);
+    }
+    .tool-card .icon {
+      font-size: 2.4rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .tool-card h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .tool-card p {
+      font-size: 1.3rem;
+      color: rgba(255,255,255,.5);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .tool-card .tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      background: rgba(247,147,26,.15);
+      color: #F7931A;
+    }
+
+    /* ─── STRATEGY CARDS ─── */
+    .strat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    a.strat-card { text-decoration: none; color: inherit; display: block; }
+    .strat-card {
+      border-radius: 20px;
+      padding: 32px 24px;
+      text-align: center;
+      transition: all .4s cubic-bezier(.25,.46,.45,.94);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    .strat-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: .05;
+      transition: opacity .4s;
+    }
+    .strat-card:hover::before { opacity: .12; }
+    .strat-card:nth-child(1) { background: linear-gradient(180deg, rgba(247,147,26,.08), transparent); }
+    .strat-card:nth-child(2) { background: linear-gradient(180deg, rgba(0,212,170,.08), transparent); }
+    .strat-card:nth-child(3) { background: linear-gradient(180deg, rgba(139,92,246,.08), transparent); }
+    .strat-card:hover {
+      transform: translateY(-6px) scale(1.01);
+    }
+    .strat-card:nth-child(1):hover { box-shadow: 0 16px 48px rgba(247,147,26,.15); }
+    .strat-card:nth-child(2):hover { box-shadow: 0 16px 48px rgba(0,212,170,.15); }
+    .strat-card:nth-child(3):hover { box-shadow: 0 16px 48px rgba(139,92,246,.15); }
+    .strat-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .strat-card h3 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .strat-card p {
+      font-size: 1.3rem;
+      color: rgba(255,255,255,.5);
+      line-height: 1.6;
+    }
+    .strat-roi {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 4px 14px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .strat-card:nth-child(1) .strat-roi { background: rgba(247,147,26,.15); color: #F7931A; }
+    .strat-card:nth-child(2) .strat-roi { background: rgba(0,212,170,.15); color: #00D4AA; }
+    .strat-card:nth-child(3) .strat-roi { background: rgba(139,92,246,.15); color: #8B5CF6; }
+
+    /* ─── QUIZ ─── */
+    .quiz-wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 24px;
+      padding: 40px 36px;
+    }
+    .quiz-progress {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+    .quiz-dot {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,.1);
+      transition: background .3s;
+    }
+    .quiz-dot.done { background: #F7931A; }
+    .quiz-dot.active { background: #FFD700; }
+    .quiz-q {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      min-height: 4rem;
+    }
+    .quiz-opts {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .quiz-opt {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 16px 20px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
+      color: #fff;
+      font-size: 1.5rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .25s;
+    }
+    .quiz-opt:hover {
+      border-color: rgba(247,147,26,.4);
+      background: rgba(247,147,26,.06);
+      transform: translateX(4px);
+    }
+    .quiz-opt.selected {
+      border-color: #F7931A;
+      background: rgba(247,147,26,.15);
+    }
+    .quiz-opt.correct {
+      border-color: #00D4AA;
+      background: rgba(0,212,170,.12);
+    }
+    .quiz-opt.wrong {
+      border-color: #FF6B6B;
+      background: rgba(255,107,107,.12);
+    }
+    .quiz-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .quiz-back {
+      font-size: 1.3rem;
+      color: rgba(255,255,255,.4);
+      padding: 8px 0;
+      transition: color .2s;
+    }
+    .quiz-back:hover { color: #fff; }
+    .quiz-next {
+      padding: 12px 32px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      color: #0a0a1a;
+      font-size: 1.35rem;
+      font-weight: 600;
+      transition: all .3s;
+    }
+    .quiz-next:hover:not(:disabled) {
+      transform: scale(1.04);
+      box-shadow: 0 8px 24px rgba(247,147,26,.3);
+    }
+    .quiz-next:disabled {
+      opacity: .35;
+      cursor: default;
+    }
+    .quiz-score {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.04);
+    }
+    .quiz-restart {
+      display: block;
+      margin: 16px auto 0;
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.4);
+      font-family: inherit;
+      transition: color .2s;
+    }
+    .quiz-restart:hover { color: #F7931A; }
+
+    /* ─── COMMUNITY ─── */
+    .community-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 700px;
+      margin: 0 auto 60px;
+      padding: 0 24px;
+    }
+    .stat-card {
+      text-align: center;
+      padding: 28px 20px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      transition: all .3s;
+    }
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(247,147,26,.2);
+    }
+    .stat-number {
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.5);
+      margin-top: 4px;
+    }
+
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .t-card {
+      padding: 24px 20px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      transition: all .3s;
+    }
+    .t-card:hover {
+      background: rgba(255,255,255,.06);
+      transform: translateY(-3px);
+    }
+    .t-text {
+      font-size: 1.3rem;
+      color: rgba(255,255,255,.6);
+      line-height: 1.6;
+      margin-bottom: 12px;
+      font-style: italic;
+    }
+    .t-author {
+      font-size: 1.1rem;
+      color: #F7931A;
+      font-weight: 500;
+    }
+
+    /* ─── DONATION ─── */
+    .donation {
+      max-width: 500px;
+      margin: 32px auto 0;
+      text-align: center;
+      padding: 28px 24px;
+      border-radius: 20px;
+      background: rgba(247,147,26,.05);
+      border: 1px solid rgba(247,147,26,.15);
+      transition: all .3s;
+    }
+    .donation:hover {
+      border-color: rgba(247,147,26,.3);
+      box-shadow: 0 8px 32px rgba(247,147,26,.06);
+    }
+    .donation-icon {
+      font-size: 2.4rem;
+      margin-bottom: 6px;
+    }
+    .donation-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #F7931A;
+      margin-bottom: 6px;
+    }
+    .donation-desc {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.5);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .donation-addr {
+      font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+      font-size: 1.1rem;
+      color: #fff;
+      background: rgba(255,255,255,.05);
+      padding: 12px 16px;
+      border-radius: 12px;
+      word-break: break-all;
+      letter-spacing: .02em;
+      margin-bottom: 12px;
+      user-select: all;
+    }
+    .donation-copy {
+      padding: 8px 20px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      color: #0a0a1a;
+      font-size: 1.2rem;
+      font-weight: 600;
+      font-family: inherit;
+      transition: all .3s;
+    }
+    .donation-copy:hover {
+      transform: scale(1.04);
+      box-shadow: 0 4px 16px rgba(247,147,26,.25);
+    }
+    .donation-copy.copied {
+      background: #00D4AA;
+    }
+
+    /* ─── NEWSLETTER ─── */
+    .newsletter {
+      text-align: center;
+      padding: 100px 24px;
+      background: linear-gradient(180deg, rgba(247,147,26,.05), transparent);
+    }
+    .newsletter h2 {
+      font-size: 3.6rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .newsletter p {
+      font-size: 1.6rem;
+      color: rgba(255,255,255,.5);
+      margin-bottom: 28px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .newsletter form {
+      display: flex;
+      max-width: 420px;
+      margin: 0 auto;
+      gap: 8px;
+    }
+    .newsletter input {
+      flex: 1;
+      padding: 14px 20px;
+      border-radius: 50px;
+      border: 1.5px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
+      color: #fff;
+      font-size: 1.4rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .3s;
+    }
+    .newsletter input:focus { border-color: #F7931A; }
+    .newsletter input::placeholder { color: rgba(255,255,255,.2); }
+    .newsletter button {
+      padding: 14px 28px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      color: #0a0a1a;
+      font-size: 1.3rem;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all .3s;
+    }
+    .newsletter button:hover {
+      transform: scale(1.04);
+      box-shadow: 0 8px 24px rgba(247,147,26,.3);
+    }
+
+    @media (max-width: 640px) {
+      .newsletter form { flex-direction: column; }
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      background: rgba(255,255,255,.02);
+      border-top: 1px solid rgba(255,255,255,.05);
+      padding: 50px 0 0;
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.4);
+    }
+    .footer-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px 40px;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+    }
+    .footer-brand .logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .footer-brand p { max-width: 260px; margin-top: 8px; line-height: 1.6; }
+    .footer h4 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .footer ul { list-style: none; }
+    .footer li { margin-bottom: 6px; }
+    .footer a { transition: color .2s; }
+    .footer a:hover { color: #F7931A; }
+    .footer-social { display: flex; gap: 12px; margin-top: 14px; }
+    .footer-social a {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .3s;
+      font-size: 1.4rem;
+    }
+    .footer-social a:hover {
+      background: #F7931A;
+      transform: translateY(-3px);
+    }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.05);
+      padding: 20px 24px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 3.4rem; }
+      .section-title { font-size: 2.6rem; }
+      .tools-grid { grid-template-columns: 1fr; }
+      .strat-grid { grid-template-columns: 1fr; max-width: 400px; }
+      .community-stats { grid-template-columns: 1fr; max-width: 300px; }
+      .test-grid { grid-template-columns: 1fr; max-width: 400px; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .footer-inner { grid-template-columns: 1fr; }
+    }
+
+  :root { --orange: #F7931A; --gold: #FFD700; --dark: #0a0a1a; }
+  
+  .glossary-page {
+    padding: 120px 24px 80px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .glossary-page h2 {
+    font-size: 2.8rem;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .glossary-page h2 span { color: var(--orange); }
+  .glossary-page > .sub {
+    text-align: center;
+    color: rgba(255,255,255,.5);
+    font-size: 1.4rem;
+    margin-bottom: 48px;
+  }
+  .glossary-search {
+    margin-bottom: 32px;
+  }
+  .glossary-search input {
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 50px;
+    border: 1.5px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.04);
+    color: #fff;
+    font-size: 1.4rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .3s;
+  }
+  .glossary-search input:focus { border-color: var(--orange); }
+  .glossary-search input::placeholder { color: rgba(255,255,255,.2); }
+  .glossary-letter {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--orange);
+    margin: 32px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(247,147,26,.2);
+  }
+  .glossary-item {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,.02);
+    border: 1px solid rgba(255,255,255,.05);
+    transition: all .2s;
+  }
+  .glossary-item:hover { border-color: rgba(247,147,26,.15); background: rgba(247,147,26,.03); }
+  .glossary-item .term {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .glossary-item .def {
+    font-size: 1.3rem;
+    color: rgba(255,255,255,.55);
+    line-height: 1.7;
+  }
+  .glossary-item .tag {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+    background: rgba(247,147,26,.15);
+    color: var(--orange);
+  }
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: rgba(255,255,255,.3);
+    font-size: 1.4rem;
+    display: none;
+  }
+  @media (max-width: 600px) {
+    .glossary-page { padding: 100px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">₿ Advanced Bitcoiner</a>
+    <div class="nav-links">
+      <a href="tools.html">Tools</a>
+      <a href="strategies.html">Strategies</a>
+      <a href="index.html#quiz">Quiz</a>
+      <a href="index.html#community">Community</a>
+      <a href="about.html">About</a>
+      <a href="index.html#alpha" class="nav-cta">Get Alpha</a>
+    </div>
+  </div>
+</nav>
+
+<!-- GLOSSARY CONTENT -->
+<section class="glossary-page">
+  <h2>Bitcoin <span>Glossary</span></h2>
+  <p class="sub">From Address to Zero-Conf — every term you need to know as an advanced Bitcoiner.</p>
+  
+  <div class="glossary-search">
+    <input type="text" id="glossarySearch" placeholder="Search terms..." oninput="filterGlossary()">
+  </div>
+
+  <div id="glossaryList">
+    <!-- A -->
+    <div class="glossary-letter">A</div>
+    <div class="glossary-item" data-term="address"><div class="term">Address <span class="tag">Basic</span></div><div class="def">A Bitcoin address is a string of alphanumeric characters that identifies a destination for a Bitcoin payment. Modern addresses use Bech32 format (starting with bc1) for SegWit transactions, offering lower fees and better error detection.</div></div>
+    <div class="glossary-item" data-term="airdrop"><div class="term">Airdrop <span class="tag">Token</span></div><div class="def">Distribution of free tokens or coins to existing Bitcoin holders, often used as a marketing strategy by new blockchain projects to bootstrap their network. Recipients are typically selected based on a snapshot of on-chain balances.</div></div>
+    <div class="glossary-item" data-term="asic"><div class="term">ASIC <span class="tag">Mining</span></div><div class="def">Application-Specific Integrated Circuit — a microchip designed exclusively for Bitcoin mining. ASICs perform SHA-256 hashing at extremely high efficiency, making them the only viable hardware for profitable mining today.</div></div>
+    <div class="glossary-item" data-term="ath"><div class="term">ATH <span class="tag">Trading</span></div><div class="def">All-Time High — the highest price Bitcoin has ever reached in a given currency pair (e.g., BTC/USD). Each cycle produces a new ATH, typically occurring 12-18 months after the halving event.</div></div>
+
+    <!-- B -->
+    <div class="glossary-letter">B</div>
+    <div class="glossary-item" data-term="base58"><div class="term">Base58 <span class="tag">Technical</span></div><div class="def">An encoding scheme used in Bitcoin addresses and private keys (legacy format). It's similar to Base64 but excludes visually similar characters (0/O/I/l) and removes '+' and '/' to prevent accidental corruption when shared.</div></div>
+    <div class="glossary-item" data-term="bech32"><div class="term">Bech32 <span class="tag">Technical</span></div><div class="def">A SegWit address format starting with 'bc1' that uses a more efficient encoding (Base32) and includes a BCH code for error detection. Bech32 addresses result in lower transaction fees and are the recommended format for modern Bitcoin wallets.</div></div>
+    <div class="glossary-item" data-term="bitcoin"><div class="term">Bitcoin <span class="tag">Core</span></div><div class="def">The first decentralized digital currency, invented by Satoshi Nakamoto in 2008. Bitcoin enables peer-to-peer value transfer without intermediaries, secured by a proof-of-work consensus mechanism with a fixed supply of 21 million coins.</div></div>
+    <div class="glossary-item" data-term="block"><div class="term">Block <span class="tag">Core</span></div><div class="def">A container of Bitcoin transactions grouped together and added to the blockchain approximately every 10 minutes. Each block references the previous block's hash, forming an immutable chain of transactions.</div></div>
+    <div class="glossary-item" data-term="blockchain"><div class="term">Blockchain <span class="tag">Core</span></div><div class="def">A distributed, immutable ledger consisting of blocks linked by cryptographic hashes. The Bitcoin blockchain records every transaction ever made and is maintained by a global network of nodes running the Bitcoin protocol.</div></div>
+    <div class="glossary-item" data-term="block-height"><div class="term">Block Height <span class="tag">Core</span></div><div class="def">The number of blocks preceding a given block in the blockchain. Genesis block is height 0. Block height is used to determine confirmation depth and to schedule protocol changes (e.g., halvings occur every 210,000 blocks).</div></div>
+    <div class="glossary-item" data-term="block-reward"><div class="term">Block Reward <span class="tag">Mining</span></div><div class="def">The amount of newly created Bitcoin awarded to a miner for successfully mining a block. Currently 3.125 BTC per block (halved from 6.25 in April 2024). The reward halves every 210,000 blocks (~4 years).</div></div>
+    <div class="glossary-item" data-term="btc"><div class="term">BTC <span class="tag">Core</span></div><div class="def">The ticker symbol for Bitcoin on exchanges and trading platforms. 1 BTC equals 100,000,000 satoshis. BTC is used as a base trading pair on most cryptocurrency exchanges.</div></div>
+
+    <!-- C -->
+    <div class="glossary-letter">C</div>
+    <div class="glossary-item" data-term="change-address"><div class="term">Change Address <span class="tag">Technical</span></div><div class="def">An address used to receive the "change" from a Bitcoin transaction when the inputs exceed the output amount. For example, if you have a 1 BTC UTXO but want to send 0.3 BTC, the remaining 0.7 BTC minus fees goes to a change address controlled by the sender.</div></div>
+    <div class="glossary-item" data-term="coin-control"><div class="term">Coin Control <span class="tag">Privacy</span></div><div class="def">The ability to manually select which UTXOs (unspent transaction outputs) to use as inputs in a transaction. Coin control allows users to manage privacy, optimize fees, and avoid consolidating high-value UTXOs that might reveal their full balance.</div></div>
+    <div class="glossary-item" data-term="cold-storage"><div class="term">Cold Storage <span class="tag">Security</span></div><div class="def">A method of storing Bitcoin private keys completely offline, typically on hardware wallets, paper wallets, or air-gapped computers. Cold storage is the most secure way to hold significant amounts of Bitcoin long-term.</div></div>
+    <div class="glossary-item" data-term="confirmation"><div class="term">Confirmation <span class="tag">Core</span></div><div class="def">When a transaction is included in a block and subsequently built upon by additional blocks. Each additional block on top of the transaction's block counts as an additional confirmation. Most exchanges require 3-6 confirmations for deposits.</div></div>
+    <div class="glossary-item" data-term="consensus"><div class="term">Consensus <span class="tag">Core</span></div><div class="def">The mechanism by which Bitcoin nodes agree on the state of the blockchain. Bitcoin uses Nakamoto Consensus, combining Proof-of-Work mining with the longest chain rule to achieve distributed agreement without a central authority.</div></div>
+
+    <!-- D -->
+    <div class="glossary-letter">D</div>
+    <div class="glossary-item" data-term="dca"><div class="term">DCA <span class="tag">Strategy</span></div><div class="def">Dollar-Cost Averaging — an investment strategy where a fixed dollar amount of Bitcoin is purchased on a regular schedule regardless of price. This reduces the impact of volatility and eliminates the need to time the market. The most recommended strategy for long-term Bitcoin accumulation.</div></div>
+    <div class="glossary-item" data-term="difficulty"><div class="term">Difficulty <span class="tag">Mining</span></div><div class="def">A measure of how hard it is to find a new Bitcoin block. The network automatically adjusts difficulty every 2,016 blocks (~2 weeks) to maintain the target 10-minute block interval. Higher difficulty means more hashing power is securing the network.</div></div>
+    <div class="glossary-item" data-term="dust"><div class="term">Dust <span class="tag">Technical</span></div><div class="def">Very small amounts of Bitcoin (typically under 546 sats) that cost more to spend than they are worth due to the minimum relay fee. Accumulating dust UTXOs can lead to bloated wallets and should be avoided.</div></div>
+
+    <!-- E -->
+    <div class="glossary-letter">E</div>
+    <div class="glossary-item" data-term="elliptic-curve"><div class="term">Elliptic Curve Cryptography <span class="tag">Technical</span></div><div class="def">The mathematical foundation of Bitcoin's key generation. Bitcoin uses the secp256k1 elliptic curve to create public-private key pairs. The security relies on the computational infeasibility of the Elliptic Curve Discrete Logarithm Problem.</div></div>
+    <div class="glossary-item" data-term="exchange"><div class="term">Exchange <span class="tag">Trading</span></div><div class="def">A platform where users can buy, sell, and trade Bitcoin for fiat currency or other cryptocurrencies. Major exchanges include Binance, Coinbase, Kraken, and Bitfinex. Non-custodial DEXs like Bisq offer peer-to-peer trading without KYC.</div></div>
+
+    <!-- F -->
+    <div class="glossary-letter">F</div>
+    <div class="glossary-item" data-term="fees"><div class="term">Fees <span class="tag">Core</span></div><div class="def">Transaction fees paid to miners for including a transaction in a block. Fees are calculated in satoshis per virtual byte (sat/vB). Higher fees prioritize your transaction during mempool congestion. SegWit transactions are cheaper due to the discount on witness data.</div></div>
+    <div class="glossary-item" data-term="fomo"><div class="term">FOMO <span class="tag">Psychology</span></div><div class="def">Fear Of Missing Out — the emotional urge to buy Bitcoin after a significant price increase. FOMO-driven purchases typically happen near local tops and often result in poor entry points. Awareness of FOMO is essential for disciplined investing.</div></div>
+    <div class="glossary-item" data-term="fork"><div class="term">Fork <span class="tag">Core</span></div><div class="def">A change to the Bitcoin protocol that creates a divergence in the blockchain. Soft forks are backward-compatible upgrades (like SegWit or Taproot). Hard forks create an incompatible chain split (like Bitcoin Cash or Bitcoin SV).</div></div>
+    <div class="glossary-item" data-term="full-node"><div class="term">Full Node <span class="tag">Core</span></div><div class="def">A computer running Bitcoin Core that validates all transactions and blocks against consensus rules. Full nodes enforce the 21 million supply cap, reject invalid blocks, and contribute to network decentralization. Running your own node is a key sovereignty practice.</div></div>
+
+    <!-- G -->
+    <div class="glossary-letter">G</div>
+    <div class="glossary-item" data-term="genesis-block"><div class="term">Genesis Block <span class="tag">Core</span></div><div class="def">Block 0 of the Bitcoin blockchain, mined by Satoshi Nakamoto on January 3, 2009. The coinbase transaction included the headline "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks" — a timestamp and commentary on the traditional financial system.</div></div>
+
+    <!-- H -->
+    <div class="glossary-letter">H</div>
+    <div class="glossary-item" data-term="halving"><div class="term">Halving <span class="tag">Core</span></div><div class="def">An event occurring every 210,000 blocks (~4 years) that cuts the block reward in half. Started at 50 BTC/block in 2009, now at 3.125 BTC/block after the April 2024 halving. Halvings continue until the last satoshi is mined around 2140. The mechanism ensures Bitcoin's disinflationary supply schedule.</div></div>
+    <div class="glossary-item" data-term="hardware-wallet"><div class="term">Hardware Wallet <span class="tag">Security</span></div><div class="def">A dedicated physical device designed to securely store Bitcoin private keys offline. Popular models include Ledger, Trezor, Coldcard, and BitBox. Hardware wallets sign transactions without exposing private keys to a potentially compromised computer.</div></div>
+    <div class="glossary-item" data-term="hashrate"><div class="term">Hashrate <span class="tag">Mining</span></div><div class="def">The total computational power secured to the Bitcoin network, measured in exahashes per second (EH/s). A higher hashrate means more security and makes the network more resistant to attacks. Current hashrate exceeds 700 EH/s.</div></div>
+    <div class="glossary-item" data-term="hd-wallet"><div class="term">HD Wallet <span class="tag">Technical</span></div><div class="def">Hierarchical Deterministic Wallet — a wallet that generates all addresses from a single seed phrase using a mathematical derivation path (BIP32/39/44). This allows infinite addresses from a 12 or 24-word mnemonic, making backups simple and secure.</div></div>
+    <div class="glossary-item" data-term="hodl"><div class="term">HODL <span class="tag">Culture</span></div><div class="def">A misspelling of "hold" originating from a 2013 Bitcointalk forum post. Now an acronym for "Hold On for Dear Life" — the strategy of holding Bitcoin long-term regardless of market volatility. A core tenet of Bitcoin culture.</div></div>
+
+    <!-- I -->
+    <div class="glossary-letter">I</div>
+    <div class="glossary-item" data-term="inputs"><div class="term">Inputs <span class="tag">Technical</span></div><div class="def">References to previous transaction outputs (UTXOs) being spent in a new transaction. Each input must be signed with the private key corresponding to the address holding the funds. More inputs in a transaction mean higher fees.</div></div>
+
+    <!-- K -->
+    <div class="glossary-letter">K</div>
+    <div class="glossary-item" data-term="keys"><div class="term">Keys (Private/Public) <span class="tag">Security</span></div><div class="def">The cryptographic foundation of Bitcoin ownership. A private key is a 256-bit number (usually represented as a 64-character hex string or seed phrase) that authorizes spending. The public key is derived from the private key via elliptic curve multiplication. Never share your private key.</div></div>
+
+    <!-- L -->
+    <div class="glossary-letter">L</div>
+    <div class="glossary-item" data-term="lightning-network"><div class="term">Lightning Network <span class="tag">Layer 2</span></div><div class="def">A second-layer protocol built on top of Bitcoin enabling instant, low-fee payments. Lightning uses payment channels that settle on-chain only when opened or closed. Enables micropayments and everyday Bitcoin transactions without congesting the base layer.</div></div>
+    <div class="glossary-item" data-term="liquidity"><div class="term">Liquidity <span class="tag">Trading</span></div><div class="def">The ability to buy or sell Bitcoin without causing significant price impact. Bitcoin is the most liquid cryptocurrency with deep order books on major exchanges. Liquidity is typically higher during US and European trading hours.</div></div>
+    <div class="glossary-item" data-term="lnurl"><div class="term">LNURL <span class="tag">Lightning</span></div><div class="def">A protocol standard that simplifies Lightning Network interactions by using a single URL to handle payments, withdrawals, and authentication. LNURL-pay allows merchants to receive Lightning payments without generating a new invoice for each transaction.</div></div>
+
+    <!-- M -->
+    <div class="glossary-letter">M</div>
+    <div class="glossary-item" data-term="mempool"><div class="term">Mempool <span class="tag">Core</span></div><div class="def">Short for "memory pool" — the collection of unconfirmed transactions waiting to be included in a block by miners. The mempool is maintained by each node independently. When the mempool is full, fees rise as users compete for block space.</div></div>
+    <div class="glossary-item" data-term="merkle-tree"><div class="term">Merkle Tree <span class="tag">Technical</span></div><div class="def">A binary tree data structure used in Bitcoin blocks to efficiently verify transactions without downloading the entire block. Each leaf is a transaction hash; parent nodes combine child hashes until a single Merkle Root is produced, stored in the block header.</div></div>
+    <div class="glossary-item" data-term="miner"><div class="term">Miner <span class="tag">Mining</span></div><div class="def">A participant running specialized ASIC hardware to compete in the SHA-256 proof-of-work lottery. Miners package transactions into blocks and attempt to find a valid block hash below the current difficulty target. Successful miners receive the block reward and fees.</div></div>
+    <div class="glossary-item" data-term="mnemonic"><div class="term">Mnemonic / Seed Phrase <span class="tag">Security</span></div><div class="def">A human-readable representation of a Bitcoin private key, typically 12 or 24 words selected from the BIP39 word list. Seed phrases allow wallets to be backed up and restored. The phrase must be kept secret and stored offline.</div></div>
+    <div class="glossary-item" data-term="multisig"><div class="term">Multisig <span class="tag">Security</span></div><div class="def">Multi-signature — an address that requires M-of-N signatures to spend funds (e.g., 2-of-3). Multisig wallets distribute trust across multiple devices or people, eliminating single points of failure. Commonly used by businesses, funds, and high-net-worth individuals.</div></div>
+
+    <!-- N -->
+    <div class="glossary-letter">N</div>
+    <div class="glossary-item" data-term="node"><div class="term">Node <span class="tag">Core</span></div><div class="def">A computer running the Bitcoin protocol that validates transactions and blocks. Full nodes enforce all consensus rules and relay data to other nodes. Running a full node (Bitcoin Core) is the ultimate way to verify your own transactions without trusting third parties.</div></div>
+    <div class="glossary-item" data-term="nonce"><div class="term">Nonce <span class="tag">Mining</span></div><div class="def">A 32-bit number included in the block header that miners vary during hashing attempts. Combined with the extraNonce field in the coinbase transaction, it provides the entropy needed to explore the vast search space of possible block hashes.</div></div>
+    <div class="glossary-item" data-term="npub"><div class="term">npub <span class="tag">Nostr</span></div><div class="def">A Nostr public key in Bech32 format, used to identify users on the Nostr protocol. The Bitcoin community has heavily adopted Nostr as a censorship-resistant social media layer, with many prominent Bitcoiners using npub handles.</div></div>
+
+    <!-- O -->
+    <div class="glossary-letter">O</div>
+    <div class="glossary-item" data-term="oracle"><div class="term">Oracle <span class="tag">Layer 2</span></div><div class="def">A trusted data feed that provides real-world information (like BTC price or weather data) to blockchain-based smart contracts. Discreet Log Contracts (DLCs) use oracles to enable Bitcoin-based derivatives and prediction markets without a trusted third party.</div></div>
+    <div class="glossary-item" data-term="output"><div class="term">Output <span class="tag">Technical</span></div><div class="def">An element of a Bitcoin transaction that specifies a recipient address and amount of Bitcoin to transfer. Each output becomes a UTXO (Unspent Transaction Output) that can be used as an input in a future transaction. The sum of outputs must be less than or equal to the sum of inputs (difference is the fee).</div></div>
+
+    <!-- P -->
+    <div class="glossary-letter">P</div>
+    <div class="glossary-item" data-term="paper-wallet"><div class="term">Paper Wallet <span class="tag">Security</span></div><div class="def">A physical document containing a Bitcoin address and its private key, typically presented as a QR code. While secure if generated correctly on an offline computer, paper wallets are fragile and outdated — modern hardware wallets are strongly preferred.</div></div>
+    <div class="glossary-item" data-term="private-key"><div class="term">Private Key <span class="tag">Security</span></div><div class="def">A secret 256-bit number that authorizes Bitcoin spending. Whoever controls the private key controls the Bitcoin. Private keys can be represented as hex, WIF (Wallet Import Format), or a seed phrase. Compromised private key = lost Bitcoin.</div></div>
+    <div class="glossary-item" data-term="proof-of-work"><div class="term">Proof of Work <span class="tag">Core</span></div><div class="def">The consensus mechanism securing Bitcoin. Miners compete to find a block hash below a target threshold by varying the nonce in the block header. The first miner to find a valid hash broadcasts their block to the network. PoW makes rewriting history computationally prohibitive.</div></div>
+    <div class="glossary-item" data-term="public-key"><div class="term">Public Key <span class="tag">Technical</span></div><div class="def">Derived from the private key using elliptic curve multiplication (secp256k1), the public key is used to generate Bitcoin addresses. Unlike addresses (which are hashed), public keys are not directly exposed until funds are spent from an address.</div></div>
+
+    <!-- R -->
+    <div class="glossary-letter">R</div>
+    <div class="glossary-item" data-term="rbf"><div class="term">RBF <span class="tag">Technical</span></div><div class="def">Replace-By-Fee — a feature allowing a sender to replace an unconfirmed transaction with a higher-fee version. RBF is useful when the mempool is congested and a transaction is stuck with low fees. Most modern wallets support RBF by default.</div></div>
+    <div class="glossary-item" data-term="rune"><div class="term">Runes <span class="tag">Protocol</span></div><div class="def">A fungible token protocol built on Bitcoin introduced by Casey Rodarmor (creator of Ordinals). Runes use the UTXO model for efficient token transfers without creating excessive "junk" UTXOs, unlike BRC-20 tokens.</div></div>
+
+    <!-- S -->
+    <div class="glossary-letter">S</div>
+    <div class="glossary-item" data-term="satoshi"><div class="term">Satoshi (SAT) <span class="tag">Core</span></div><div class="def">The smallest unit of Bitcoin, equal to 0.00000001 BTC or 1/100,000,000 of a full Bitcoin. Named after Bitcoin's pseudonymous creator. As Bitcoin price rises, transactions are increasingly denominated in satoshis rather than BTC.</div></div>
+    <div class="glossary-item" data-term="segwit"><div class="term">SegWit <span class="tag">Technical</span></div><div class="def">Segregated Witness — a soft fork activated in August 2017 that separated (segregated) witness data (signatures) from the transaction data. This effectively increased block capacity, fixed transaction malleability, and enabled second-layer protocols like Lightning Network.</div></div>
+    <div class="glossary-item" data-term="self-custody"><div class="term">Self-Custody <span class="tag">Security</span></div><div class="def">The practice of holding your own Bitcoin private keys rather than trusting a third party (exchange, custodian). The mantra "not your keys, not your coins" emphasizes that only self-custody gives you true ownership of Bitcoin.</div></div>
+    <div class="glossary-item" data-term="signature"><div class="term">Signature <span class="tag">Technical</span></div><div class="def">A cryptographic proof created by signing a transaction with a private key. ECDSA (Elliptic Curve Digital Signature Algorithm) signatures prove ownership without revealing the private key. Schnorr signatures (enabled by Taproot) allow multi-signature aggregation for greater efficiency.</div></div>
+    <div class="glossary-item" data-term="soil"><div class="term">SOIL <span class="tag">Culture</span></div><div class="def">Standard Of Independent Living — a Bitcoin-centric alternative to COLA (Cost Of Living Adjustments). Refers to the practice of measuring your standard of living in Bitcoin terms rather than depreciating fiat currency.</div></div>
+    <div class="glossary-item" data-term="soft-fork"><div class="term">Soft Fork <span class="tag">Core</span></div><div class="def">A backward-compatible upgrade to the Bitcoin protocol where new rules are stricter than old rules. Old nodes can still validate new blocks (but may not enforce the new rules). Examples: SegWit, Taproot, OP_CHECKSEQUENCEVERIFY.</div></div>
+
+    <!-- T -->
+    <div class="glossary-letter">T</div>
+    <div class="glossary-item" data-term="taproot"><div class="term">Taproot <span class="tag">Technical</span></div><div class="def">A Bitcoin soft fork activated in November 2021 (block 709,632) that introduced Schnorr signatures and MAST (Merkleized Abstract Syntax Trees). Taproot improves privacy by making complex smart contracts indistinguishable from simple payments on-chain, and reduces transaction sizes.</div></div>
+    <div class="glossary-item" data-term="transaction"><div class="term">Transaction <span class="tag">Core</span></div><div class="def">A signed data structure that transfers Bitcoin from one address to another. Transactions consume UTXOs as inputs and create new UTXOs as outputs. Each transaction is broadcast to the network, validated by nodes, and eventually included in a block by miners.</div></div>
+
+    <!-- U -->
+    <div class="glossary-letter">U</div>
+    <div class="glossary-item" data-term="utxo"><div class="term">UTXO <span class="tag">Core</span></div><div class="def">Unspent Transaction Output — a discrete piece of Bitcoin that you own. Your Bitcoin balance is the sum of all UTXOs controlled by your keys. Each UTXO must be spent in its entirety (the "change" goes to a new change address). Managing UTXOs is called coin control.</div></div>
+
+    <!-- V -->
+    <div class="glossary-letter">V</div>
+    <div class="glossary-item" data-term="vanity-address"><div class="term">Vanity Address <span class="tag">Culture</span></div><div class="def">A Bitcoin address that contains a specific pattern or word (e.g., bc1qdeadbeef...). Generating vanity addresses requires brute-forcing millions of keys until one produces the desired pattern. Vanity addresses are a flex but offer no additional security.</div></div>
+
+    <!-- W -->
+    <div class="glossary-letter">W</div>
+    <div class="glossary-item" data-term="wallet"><div class="term">Wallet <span class="tag">Core</span></div><div class="def">Software or hardware that manages Bitcoin private keys and facilitates transactions. Wallets don't "store" Bitcoin — they store keys that control UTXOs on the blockchain. Types include: hardware wallets (Ledger/Trezor), software wallets (Sparrow/Electrum), and mobile wallets (BlueWallet/Muun).</div></div>
+    <div class="glossary-item" data-term="whale"><div class="term">Whale <span class="tag">Trading</span></div><div class="def">An entity holding a large amount of Bitcoin (typically 1,000+ BTC). Whale movements can impact market prices. Whale watching — tracking large transactions on-chain — is a popular analysis technique for anticipating market moves.</div></div>
+
+    <!-- X -->
+    <div class="glossary-letter">X</div>
+    <div class="glossary-item" data-term="xpub"><div class="term">xpub <span class="tag">Technical</span></div><div class="def">Extended Public Key — a master public key from which all descendant public keys in an HD wallet can be derived. Sharing an xpub allows others to view your wallet's transaction history (watch-only) without being able to spend funds. Watch-only wallets use xpubs.</div></div>
+
+    <!-- Z -->
+    <div class="glossary-letter">Z</div>
+    <div class="glossary-item" data-term="zero-conf"><div class="term">Zero-Conf <span class="tag">Core</span></div><div class="def">Zero-Confirmation — accepting a Bitcoin transaction before it has been included in a block. Zero-conf transactions carry risk of double-spends, especially for high-value payments. Lightning Network solves this problem with instant, irreversible payments.</div></div>
+  </div>
+
+  <div class="no-results" id="noResults">No terms found matching your search.</div>
+
+  <div style="text-align:center;margin-top:48px;padding:32px;background:rgba(247,147,26,.05);border-radius:20px;border:1px solid rgba(247,147,26,.15)">
+    <h3 style="font-size:2rem;margin-bottom:8px">&#128214; Know your terms, know your money</h3>
+    <p style="color:rgba(255,255,255,.5);font-size:1.35rem;max-width:500px;margin:0 auto">Mastering Bitcoin vocabulary is the first step toward true financial sovereignty. Keep learning.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo">₿ Advanced Bitcoiner</div>
+      <p>Tools, strategies, and alpha for Bitcoiners who take this seriously. Not financial advice.</p>
+      <div class="footer-social">
+        <a href="https://x.com/bitcoin" target="_blank" rel="noopener">&#120143;</a>
+        <a href="https://snort.social" target="_blank" rel="noopener">&#9670;</a>
+        <a href="https://t.me/bitcoin" target="_blank" rel="noopener">&#10219;</a>
+      </div>
+    </div>
+    <div>
+      <h4>Tools</h4>
+      <ul>
+        <li><a href="tools.html">Satoshi Converter</a></li>
+        <li><a href="tools.html#dca-calculator">DCA Calculator</a></li>
+        <li><a href="tools.html#position-sizer">Position Sizer</a></li>
+        <li><a href="tools.html#halving-countdown">Halving Clock</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Learn</h4>
+      <ul>
+        <li><a href="strategies.html">Strategies</a></li>
+        <li><a href="index.html#quiz">Mastery Quiz</a></li>
+        <li><a href="glossary.html">Glossary</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Connect</h4>
+      <ul>
+        <li><a href="https://discord.gg/bitcoin" target="_blank" rel="noopener">Discord</a></li>
+        <li><a href="https://x.com/bitcoin" target="_blank" rel="noopener">Twitter / X</a></li>
+        <li><a href="https://snort.social" target="_blank" rel="noopener">Nostr</a></li>
+        <li><a href="https://signal.group" target="_blank" rel="noopener">Signal</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 Advanced Bitcoiner. Stack sats, not shit. ₿</p>
+  </div>
+</footer>
+
+<script>
+function filterGlossary() {
+  var q = document.getElementById('glossarySearch').value.toLowerCase().trim();
+  var items = document.querySelectorAll('.glossary-item');
+  var letters = document.querySelectorAll('.glossary-letter');
+  var noResults = document.getElementById('noResults');
+  var visibleItems = 0;
+  
+  items.forEach(function(item) {
+    var term = item.querySelector('.term').textContent.toLowerCase();
+    var def = item.querySelector('.def').textContent.toLowerCase();
+    if (!q || term.includes(q) || def.includes(q)) {
+      item.style.display = 'block';
+      visibleItems++;
+    } else {
+      item.style.display = 'none';
+    }
+  });
+  
+  letters.forEach(function(letter) {
+    var nextItems = [];
+    var sibling = letter.nextElementSibling;
+    while (sibling && !sibling.classList.contains('glossary-letter')) {
+      if (sibling.classList.contains('glossary-item')) nextItems.push(sibling);
+      sibling = sibling.nextElementSibling;
+    }
+    var hasVisible = nextItems.some(function(item) { return item.style.display !== 'none'; });
+    letter.style.display = hasVisible ? 'block' : 'none';
+  });
+  
+  noResults.style.display = visibleItems === 0 ? 'block' : 'none';
+}
+</script>
+
+</body>
+</html>
