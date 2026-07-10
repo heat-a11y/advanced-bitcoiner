@@ -636,6 +636,67 @@
       font-weight: 500;
     }
 
+    /* ─── DONATION ─── */
+    .donation {
+      max-width: 500px;
+      margin: 32px auto 0;
+      text-align: center;
+      padding: 28px 24px;
+      border-radius: 20px;
+      background: rgba(247,147,26,.05);
+      border: 1px solid rgba(247,147,26,.15);
+      transition: all .3s;
+    }
+    .donation:hover {
+      border-color: rgba(247,147,26,.3);
+      box-shadow: 0 8px 32px rgba(247,147,26,.06);
+    }
+    .donation-icon {
+      font-size: 2.4rem;
+      margin-bottom: 6px;
+    }
+    .donation-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #F7931A;
+      margin-bottom: 6px;
+    }
+    .donation-desc {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.5);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .donation-addr {
+      font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+      font-size: 1.1rem;
+      color: #fff;
+      background: rgba(255,255,255,.05);
+      padding: 12px 16px;
+      border-radius: 12px;
+      word-break: break-all;
+      letter-spacing: .02em;
+      margin-bottom: 12px;
+      user-select: all;
+    }
+    .donation-copy {
+      padding: 8px 20px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #F7931A, #FFD700);
+      color: #0a0a1a;
+      font-size: 1.2rem;
+      font-weight: 600;
+      font-family: inherit;
+      transition: all .3s;
+    }
+    .donation-copy:hover {
+      transform: scale(1.04);
+      box-shadow: 0 4px 16px rgba(247,147,26,.25);
+    }
+    .donation-copy.copied {
+      background: #00D4AA;
+    }
+
     /* ─── NEWSLETTER ─── */
     .newsletter {
       text-align: center;
@@ -899,7 +960,7 @@
   <section class="section section-card-bg" id="quiz">
     <div class="section-label">&#129518; Prove yourself</div>
     <h2 class="section-title">Bitcoin <span>Mastery Quiz</span></h2>
-    <p class="section-desc">5 advanced questions. No hand-holding. Think you know Bitcoin?</p>
+    <p class="section-desc">10 advanced questions. No hand-holding. Think you know Bitcoin?</p>
     <div class="quiz-wrap">
       <div class="quiz-progress" id="quizDots"></div>
       <div class="quiz-q" id="quizQ"></div>
@@ -910,6 +971,13 @@
       </div>
       <div class="quiz-score" id="quizScore" style="display:none;"></div>
       <button class="quiz-restart" id="quizRestart" style="display:none;">&#8635; Retake quiz</button>
+    </div>
+    <div class="donation">
+      <div class="donation-icon">&#8357;</div>
+      <div class="donation-title">Support the stack</div>
+      <div class="donation-desc">If you found this useful, send a tip to help keep the alpha flowing:</div>
+      <div class="donation-addr" id="donationAddr">bc1q47tl79lx5ua5hecnsj42d6whgk8hjlqvlv3jh7</div>
+      <button class="donation-copy" onclick="copyDonation()">&#128203; Copy address</button>
     </div>
   </section>
 
@@ -1053,9 +1121,39 @@
       },
       {
         q: 'What is the purpose of BIP-174?',
-        opts: ['SegWit activation', 'PSBT — Partially Signed Bitcoin Transactions', 'Taproot upgrade', 'Replace-by-fee'],
+        opts: ['SegWit activation', 'PSBT \u2014 Partially Signed Bitcoin Transactions', 'Taproot upgrade', 'Replace-by-fee'],
         correct: 1,
         explain: 'BIP-174 defines the PSBT format, allowing multiple parties to collaboratively sign a transaction.'
+      },
+      {
+        q: 'What does BIP-341 introduce?',
+        opts: ['SegWit', 'Taproot', 'Replace-by-fee', 'HD wallets'],
+        correct: 1,
+        explain: 'BIP-341 introduces Taproot, which uses Schnorr signatures and MAST to improve privacy and scalability.'
+      },
+      {
+        q: 'What is the difference between Pay-to-Public-Key-Hash (P2PKH) and Pay-to-Script-Hash (P2SH)?',
+        opts: ['They are identical', 'P2PKH sends to a key hash, P2SH sends to a script hash', 'P2SH is older', 'P2PKH requires multisig'],
+        correct: 1,
+        explain: 'P2PKH locks coins to a public key hash, while P2SH locks them to the hash of a redeem script (used for multisig, time-locks, etc.).'
+      },
+      {
+        q: 'What is the difficulty adjustment interval in Bitcoin?',
+        opts: ['Every 144 blocks', 'Every 2016 blocks', 'Every 1008 blocks', 'Every 504 blocks'],
+        correct: 1,
+        explain: 'Bitcoin adjusts mining difficulty every 2016 blocks (~2 weeks) to maintain a ~10-minute block interval.'
+      },
+      {
+        q: 'What is a coinbase transaction?',
+        opts: ['The first transaction in a block that pays the miner reward', 'A transaction between Coinbase users', 'A transaction with zero fees', 'A type of smart contract'],
+        correct: 0,
+        explain: 'The coinbase transaction is the first transaction in a block. It creates new BTC and collects fees as the miner reward.'
+      },
+      {
+        q: 'What does the term \u201cblocksize war\u201d refer to?',
+        opts: ['A DDoS attack on miners', 'The 2015\u20132017 debate over increasing Bitcoin\'s block size limit', 'A mining pool conflict', 'A hard fork of Ethereum'],
+        correct: 1,
+        explain: 'The blocksize war was a contentious debate about raising Bitcoin\'s 1 MB block limit, which ultimately led to the SegWit activation and the BTC/BCH split.'
       }
     ];
 
@@ -1144,9 +1242,10 @@
 
       scoreEl.style.display = 'block';
       scoreEl.textContent = 'You scored ' + score + '/' + quizData.length +
-        (score === quizData.length ? ' \uD83D\uDD25 Perfect! You are a true Bitcoiner!' :
-         score >= 3 ? ' \uD83D\uDCAA Good work, keep learning!' :
-         ' \uD83D\uDCDA Study up and try again!');
+        (score === 10 ? ' \uD83D\uDD25 Perfect 10/10! You are a true Bitcoiner!' :
+         score >= 7 ? ' \uD83D\uDCAA Solid score! You know your stuff.' :
+         score >= 4 ? ' \uD83D\uDCD6 Getting there. Review the ones you missed and try again.' :
+         ' \uD83D\uDCDA Time to hit the books. Start with the Bitcoin whitepaper!');
       restartEl.style.display = 'block';
       backEl.style.visibility = 'hidden';
       nextEl.style.visibility = 'hidden';
@@ -1166,6 +1265,33 @@
     nextEl.onclick = nextQuiz;
     restartEl.onclick = restartQuizFn;
     renderQuiz();
+
+    // ─── DONATION COPY ───
+    function copyDonation() {
+      var addr = document.getElementById('donationAddr');
+      var btn = document.querySelector('.donation-copy');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(addr.textContent).then(function() {
+          btn.textContent = '\u2705 Copied!';
+          btn.classList.add('copied');
+          setTimeout(function() {
+            btn.textContent = '\uD83D\uDCB3 Copy address';
+            btn.classList.remove('copied');
+          }, 2500);
+        });
+      } else {
+        // fallback
+        var range = document.createRange();
+        range.selectNodeContents(addr);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        btn.textContent = '\u2705 Selected \u2014 copy manually';
+        setTimeout(function() {
+          btn.textContent = '\uD83D\uDCB3 Copy address';
+        }, 2500);
+      }
+    }
 
     // ─── ANIMATED COUNTERS ───
     function animateCounter(el, target, suffix) {
