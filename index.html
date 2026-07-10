@@ -299,18 +299,125 @@
       border-color: rgba(247,147,26,.2);
     }
     .chart-visual {
-      max-width: 700px;
+      max-width: 320px;
       margin: 0 auto;
       position: relative;
     }
     .chart-visual svg {
       width: 100%;
-      height: auto;
+      height: 320px;
       display: block;
       filter: drop-shadow(0 4px 40px rgba(247,147,26,.08));
     }
     .chart-visual svg path {
       transition: d .5s cubic-bezier(.25,.46,.45,.94);
+    }
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      max-width: 320px;
+      margin: 6px auto 0;
+      font-size: 1rem;
+      color: rgba(255,255,255,.3);
+    }
+    .chart-labels-y {
+      position: absolute;
+      left: -40px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+      font-size: .95rem;
+      color: rgba(255,255,255,.2);
+      white-space: nowrap;
+      letter-spacing: .06em;
+    }
+
+    /* ─── X NEWS ─── */
+    .xnews-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 900px;
+      margin: 0 auto 40px;
+      padding: 0 24px;
+    }
+    .xnews-grid > :nth-last-child(2) {
+      grid-column: span 1;
+    }
+    .xnews-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 20px;
+      transition: all .3s;
+      text-align: left;
+    }
+    .xnews-card:hover {
+      background: rgba(255,255,255,.06);
+      transform: translateY(-3px);
+      border-color: rgba(247,147,26,.15);
+    }
+    .xnews-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .xnews-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .xnews-avatar.btc { background: rgba(247,147,26,.2); }
+    .xnews-avatar.whale { background: rgba(0,212,170,.2); }
+    .xnews-avatar.news { background: rgba(139,92,246,.2); }
+    .xnews-avatar.meme { background: rgba(255,107,107,.2); }
+    .xnews-avatar.chain { background: rgba(0,200,255,.2); }
+    .xnews-info { flex: 1; min-width: 0; }
+    .xnews-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .xnews-name span { color: rgba(255,255,255,.4); font-weight: 400; font-size: 1.05rem; }
+    .xnews-handle {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.35);
+    }
+    .xnews-x {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,.25);
+      flex-shrink: 0;
+    }
+    .xnews-body {
+      font-size: 1.25rem;
+      color: rgba(255,255,255,.75);
+      line-height: 1.55;
+      margin-bottom: 12px;
+    }
+    .xnews-body strong { color: #F7931A; font-weight: 600; }
+    .xnews-body .cashtag { color: #F7931A; }
+    .xnews-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.3);
+    }
+    .xnews-meta span { display: flex; align-items: center; gap: 4px; }
+    .xnews-time {
+      font-size: 1rem;
+      color: rgba(255,255,255,.25);
+      margin-top: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .xnews-grid { grid-template-columns: 1fr; max-width: 400px; }
     }
 
     /* ─── SECTION ─── */
@@ -955,18 +1062,25 @@
       <button class="chart-tf" data-tf="all" onclick="switchChart('all')">ALL</button>
     </div>
     <div class="chart-visual">
-      <svg viewBox="0 0 700 220" preserveAspectRatio="xMidYMid meet">
+      <div class="chart-labels-y">Time &#8593;</div>
+      <svg viewBox="0 0 320 320" preserveAspectRatio="xMidYMid meet">
         <defs>
-          <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id="chartFill" x1="0" y1="1" x2="0" y2="0">
             <stop offset="0%" stop-color="#F7931A" stop-opacity=".25"/>
             <stop offset="100%" stop-color="#F7931A" stop-opacity="0"/>
           </linearGradient>
         </defs>
         <path id="chartPath" fill="url(#chartFill)"
-          d="M0,200 L0,180 C20,175 40,160 60,165 C80,170 100,140 120,130 C140,120 160,125 180,110 C200,95 220,100 240,85 C260,70 280,75 300,60 C320,45 340,50 360,40 C380,30 400,35 420,55 C440,75 460,90 480,85 C500,80 520,65 540,70 C560,75 580,60 600,50 C620,40 640,45 660,55 C680,65 700,60 700,60 L700,200 Z"/>
+          d="M350,215 C370,200 390,185 410,170 C430,155 450,140 440,125 C430,110 460,95 480,85 C500,75 520,65 540,55 C560,45 580,35 595,30 C610,25 620,20 624,15 L624,320 L350,320 Z"/>
         <path id="chartLine" fill="none" stroke="#F7931A" stroke-width="2.5" stroke-linecap="round"
-          d="M0,180 C20,175 40,160 60,165 C80,170 100,140 120,130 C140,120 160,125 180,110 C200,95 220,100 240,85 C260,70 280,75 300,60 C320,45 340,50 360,40 C380,30 400,35 420,55 C440,75 460,90 480,85 C500,80 520,65 540,70 C560,75 580,60 600,50 C620,40 640,45 660,55 C680,65 700,60"/>
+          d="M350,215 C370,200 390,185 410,170 C430,155 450,140 440,125 C430,110 460,95 480,85 C500,75 520,65 540,55 C560,45 580,35 595,30 C610,25 620,20 624,15"/>
       </svg>
+      <div class="chart-labels">
+        <span>$20k</span>
+        <span>$40k</span>
+        <span>$60k</span>
+        <span>$80k</span>
+      </div>
     </div>
   </div>
 
@@ -1109,6 +1223,110 @@
       <div class="t-card">
         <p class="t-text">"The liquidity sweep strategy helped me buy the bottom on three separate occasions. Absolute gold."</p>
         <p class="t-author">— OrderFlowOG</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- X NEWS -->
+  <section class="section section-card-bg" id="news">
+    <div class="section-label">&#120143; Bitcoin on X</div>
+    <h2 class="section-title">Latest <span>from the trenches</span></h2>
+    <p class="section-desc">What the Bitcoin community is saying right now.</p>
+    <div class="xnews-grid">
+      <div class="xnews-card">
+        <div class="xnews-header">
+          <div class="xnews-avatar btc">&#8357;</div>
+          <div class="xnews-info">
+            <div class="xnews-name">Bitcoin Magazine <span>&#10003;</span></div>
+            <div class="xnews-handle">@BitcoinMagazine</div>
+          </div>
+          <div class="xnews-x">&#120143;</div>
+        </div>
+        <div class="xnews-body">
+          BREAKING: El Salvador has purchased another <strong>500 BTC</strong> ($31.2M) in the past 24 hours. Total national reserve now exceeds 7,000 BTC.
+        </div>
+        <div class="xnews-meta">
+          <span>&#9829; 2,847</span>
+          <span>&#8644; 1,203</span>
+          <span>&#9993; 892</span>
+        </div>
+        <div class="xnews-time">3h ago</div>
+      </div>
+      <div class="xnews-card">
+        <div class="xnews-header">
+          <div class="xnews-avatar whale">&#128129;</div>
+          <div class="xnews-info">
+            <div class="xnews-name">Whale Alert</div>
+            <div class="xnews-handle">@whale_alert</div>
+          </div>
+          <div class="xnews-x">&#120143;</div>
+        </div>
+        <div class="xnews-body">
+          <span class="cashtag">$BTC</span> Whale transfer: 12,843 BTC ($801M) moved from unknown wallet to Binance. Largest exchange inflow this quarter.
+        </div>
+        <div class="xnews-meta">
+          <span>&#9829; 1,526</span>
+          <span>&#8644; 634</span>
+          <span>&#9993; 412</span>
+        </div>
+        <div class="xnews-time">7h ago</div>
+      </div>
+      <div class="xnews-card">
+        <div class="xnews-header">
+          <div class="xnews-avatar news">&#128240;</div>
+          <div class="xnews-info">
+            <div class="xnews-name">Bitcoin News Wire</div>
+            <div class="xnews-handle">@BTCTnews</div>
+          </div>
+          <div class="xnews-x">&#120143;</div>
+        </div>
+        <div class="xnews-body">
+          Bitcoin hash rate hits a new all-time high of <strong>725 EH/s</strong>. Network security stronger than ever despite recent price volatility.
+        </div>
+        <div class="xnews-meta">
+          <span>&#9829; 3,214</span>
+          <span>&#8644; 1,876</span>
+          <span>&#9993; 1,043</span>
+        </div>
+        <div class="xnews-time">12h ago</div>
+      </div>
+      <div class="xnews-card">
+        <div class="xnews-header">
+          <div class="xnews-avatar meme">&#128513;</div>
+          <div class="xnews-info">
+            <div class="xnews-name">HODL Memes</div>
+            <div class="xnews-handle">@hodlmemes</div>
+          </div>
+          <div class="xnews-x">&#120143;</div>
+        </div>
+        <div class="xnews-body">
+          Me checking BTC price every 5 minutes even though I told myself I'd stop looking. &#128514; we are all the same picture. <span class="cashtag">#HODL</span>
+        </div>
+        <div class="xnews-meta">
+          <span>&#9829; 8,432</span>
+          <span>&#8644; 2,109</span>
+          <span>&#9993; 687</span>
+        </div>
+        <div class="xnews-time">1d ago</div>
+      </div>
+      <div class="xnews-card">
+        <div class="xnews-header">
+          <div class="xnews-avatar chain">&#9881;</div>
+          <div class="xnews-info">
+            <div class="xnews-name">OnChain College</div>
+            <div class="xnews-handle">@onchaincollege</div>
+          </div>
+          <div class="xnews-x">&#120143;</div>
+        </div>
+        <div class="xnews-body">
+          Long-term holders accumulated <strong>48,000 BTC</strong> ($2.9B) in the past 30 days. Exchange balances at 5-year lows. Supply squeeze incoming.
+        </div>
+        <div class="xnews-meta">
+          <span>&#9829; 2,103</span>
+          <span>&#8644; 847</span>
+          <span>&#9993; 356</span>
+        </div>
+        <div class="xnews-time">2d ago</div>
       </div>
     </div>
   </section>
@@ -1413,28 +1631,28 @@
     // ─── CHART ───
     var chartPaths = {
       '1d': {
-        line: 'M0,140 C20,135 40,130 60,138 C80,145 100,125 120,120 C140,115 160,118 180,110 C200,102 220,108 240,100 C260,92 280,95 300,88 C320,80 340,85 360,78 C380,70 400,72 420,75 C440,78 460,82 480,76 C500,70 520,68 540,72 C560,76 580,65 600,58 C620,50 640,55 660,52 C680,48 700,45',
-        fill: 'M0,200 L0,140 C20,135 40,130 60,138 C80,145 100,125 120,120 C140,115 160,118 180,110 C200,102 220,108 240,100 C260,92 280,95 300,88 C320,80 340,85 360,78 C380,70 400,72 420,75 C440,78 460,82 480,76 C500,70 520,68 540,72 C560,76 580,65 600,58 C620,50 640,55 660,52 C680,48 700,45 L700,200 Z',
+        line: 'M280,310 C290,280 295,250 300,220 C305,190 310,160 308,130 C306,100 312,70 315,50 C318,30 320,20 324,10',
+        fill: 'M280,310 C290,280 295,250 300,220 C305,190 310,160 308,130 C306,100 312,70 315,50 C318,30 320,20 324,10 L324,320 L280,320 Z',
         change: '+1.82%'
       },
       '1w': {
-        line: 'M0,170 C20,165 40,155 60,160 C80,165 100,140 120,135 C140,130 160,145 180,140 C200,135 220,120 240,115 C260,110 280,105 300,100 C320,95 340,90 360,85 C380,80 400,88 420,82 C440,76 460,78 480,72 C500,66 520,70 540,64 C560,58 580,55 600,52 C620,48 640,50 660,55 C680,60 700,58',
-        fill: 'M0,200 L0,170 C20,165 40,155 60,160 C80,165 100,140 120,135 C140,130 160,145 180,140 C200,135 220,120 240,115 C260,110 280,105 300,100 C320,95 340,90 360,85 C380,80 400,88 420,82 C440,76 460,78 480,72 C500,66 520,70 540,64 C560,58 580,55 600,52 C620,48 640,50 660,55 C680,60 700,58 L700,200 Z',
+        line: 'M220,315 C230,290 240,260 235,230 C230,200 245,170 255,145 C265,120 260,95 250,75 C240,55 255,40 265,30 C275,20 285,15 300,12 C315,10 320,8 324,8',
+        fill: 'M220,315 C230,290 240,260 235,230 C230,200 245,170 255,145 C265,120 260,95 250,75 C240,55 255,40 265,30 C275,20 285,15 300,12 C315,10 320,8 324,8 L324,320 L220,320 Z',
         change: '+5.67%'
       },
       '1m': {
-        line: 'M0,180 C20,175 40,160 60,165 C80,170 100,140 120,130 C140,120 160,125 180,110 C200,95 220,100 240,85 C260,70 280,75 300,60 C320,45 340,50 360,40 C380,30 400,35 420,55 C440,75 460,90 480,85 C500,80 520,65 540,70 C560,75 580,60 600,50 C620,40 640,45 660,55 C680,65 700,60',
-        fill: 'M0,200 L0,180 C20,175 40,160 60,165 C80,170 100,140 120,130 C140,120 160,125 180,110 C200,95 220,100 240,85 C260,70 280,75 300,60 C320,45 340,50 360,40 C380,30 400,35 420,55 C440,75 460,90 480,85 C500,80 520,65 540,70 C560,75 580,60 600,50 C620,40 640,45 660,55 C680,65 700,60 L700,200 Z',
+        line: 'M150,315 C170,295 190,270 210,250 C230,230 250,210 240,190 C230,170 260,145 280,125 C300,105 320,85 340,70 C360,55 380,40 395,30 C410,25 420,20 424,15',
+        fill: 'M150,315 C170,295 190,270 210,250 C230,230 250,210 240,190 C230,170 260,145 280,125 C300,105 320,85 340,70 C360,55 380,40 395,30 C410,25 420,20 424,15 L424,320 L150,320 Z',
         change: '+2.34%'
       },
       '1y': {
-        line: 'M0,190 C20,185 40,170 60,175 C80,180 100,160 120,165 C140,170 160,150 180,155 C200,160 220,130 240,135 C260,140 280,100 300,105 C320,110 340,80 360,85 C380,90 400,95 420,100 C440,105 460,110 480,95 C500,80 520,65 540,60 C560,55 580,50 600,48 C620,45 640,50 660,52 C680,55 700,58',
-        fill: 'M0,200 L0,190 C20,185 40,170 60,175 C80,180 100,160 120,165 C140,170 160,150 180,155 C200,160 220,130 240,135 C260,140 280,100 300,105 C320,110 340,80 360,85 C380,90 400,95 420,100 C440,105 460,110 480,95 C500,80 520,65 540,60 C560,55 580,50 600,48 C620,45 640,50 660,52 C680,55 700,58 L700,200 Z',
+        line: 'M80,315 C90,295 100,275 110,255 C120,235 130,220 140,210 C150,200 160,190 170,180 C180,170 190,160 210,150 C230,140 250,130 270,120 C290,110 310,100 330,90 C350,80 370,70 390,60 C410,50 430,40 450,35 C470,30 480,25 490,22',
+        fill: 'M80,315 C90,295 100,275 110,255 C120,235 130,220 140,210 C150,200 160,190 170,180 C180,170 190,160 210,150 C230,140 250,130 270,120 C290,110 310,100 330,90 C350,80 370,70 390,60 C410,50 430,40 450,35 C470,30 480,25 490,22 L490,320 L80,320 Z',
         change: '+34.21%'
       },
       'all': {
-        line: 'M0,195 C20,190 40,180 60,185 C80,175 100,160 120,170 C140,150 160,140 180,145 C200,130 220,120 240,125 C260,110 280,100 300,105 C320,90 340,80 360,85 C380,70 400,65 420,70 C440,60 460,55 480,58 C500,50 520,48 540,52 C560,45 580,42 600,40 C620,38 640,42 660,45 C680,48 700,50',
-        fill: 'M0,200 L0,195 C20,190 40,180 60,185 C80,175 100,160 120,170 C140,150 160,140 180,145 C200,130 220,120 240,125 C260,110 280,100 300,105 C320,90 340,80 360,85 C380,70 400,65 420,70 C440,60 460,55 480,58 C500,50 520,48 540,52 C560,45 580,42 600,40 C620,38 640,42 660,45 C680,48 700,50 L700,200 Z',
+        line: 'M30,315 C40,300 50,285 60,270 C70,255 80,245 90,235 C100,225 110,215 120,210 C130,205 140,195 150,190 C160,185 170,175 180,170 C190,165 200,155 210,150 C220,145 230,135 240,130 C250,125 260,115 270,110 C280,105 290,95 300,90 C310,85 320,75 330,70 C340,65 350,60 360,55 C370,50 380,45 390,40',
+        fill: 'M30,315 C40,300 50,285 60,270 C70,255 80,245 90,235 C100,225 110,215 120,210 C130,205 140,195 150,190 C160,185 170,175 180,170 C190,165 200,155 210,150 C220,145 230,135 240,130 C250,125 260,115 270,110 C280,105 290,95 300,90 C310,85 320,75 330,70 C340,65 350,60 360,55 C370,50 380,45 390,40 L390,320 L30,320 Z',
         change: '+127.46%'
       }
     };
