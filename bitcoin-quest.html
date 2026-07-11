@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bitcoin Quest — From Zero to Hero</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>\u20BF</text></svg>">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@400;600;700;800&display=swap');
+
+  :root {
+    --orange: #F7931A;
+    --gold: #FFD700;
+    --dark: #0b0b1a;
+    --card: rgba(255,255,255,.04);
+    --card-border: rgba(255,255,255,.08);
+    --green: #00D4AA;
+    --red: #FF4757;
+    --purple: #8B5CF6;
+    --blue: #3B82F6;
+    --pink: #FF6B9D;
+  }
+
+  body {
+    background: var(--dark);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(247,147,26,.06), transparent),
+      radial-gradient(ellipse 60% 50% at 20% 80%, rgba(139,92,246,.04), transparent),
+      radial-gradient(ellipse 50% 40% at 80% 70%, rgba(0,212,170,.03), transparent);
+  }
+
+  #game {
+    width: 100%;
+    max-width: 560px;
+    min-height: 100vh;
+    padding: 20px 16px 30px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ─── SCREENS ─── */
+  .screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 16px;
+    animation: fadeIn .4s ease;
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(6px); } }
+  @keyframes glow { 0%,100% { box-shadow: 0 0 20px rgba(247,147,26,.2); } 50% { box-shadow: 0 0 40px rgba(247,147,26,.5), 0 0 80px rgba(247,147,26,.2); } }
+  @keyframes float { 0%,100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-6px) rotate(-3deg); } 75% { transform: translateY(3px) rotate(2deg); } }
+  @keyframes confetti-fall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+  @keyframes zoomIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  /* ─── TITLE SCREEN ─── */
+  .title-logo {
+    font-size: 5rem;
+    animation: bounce 2s ease-in-out infinite;
+    margin-bottom: 4px;
+  }
+  .title-logo-sub {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--orange);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+  .title-h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.6rem;
+    text-align: center;
+    line-height: 1.2;
+    background: linear-gradient(135deg, var(--orange), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .title-sub {
+    color: rgba(255,255,255,.4);
+    text-align: center;
+    font-size: 1.3rem;
+    max-width: 320px;
+    line-height: 1.5;
+  }
+  .title-char-preview {
+    font-size: 4rem;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin: 4px 0;
+  }
+  .title-char-preview span { opacity: .3; transition: all .3s; }
+  .title-char-preview span.active { opacity: 1; transform: scale(1.3); }
+  .start-btn {
+    background: linear-gradient(135deg, var(--orange), #e67e00);
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 800;
+    font-family: 'Fredoka One', cursive;
+    padding: 16px 48px;
+    border-radius: 60px;
+    cursor: pointer;
+    transition: all .3s;
+    box-shadow: 0 8px 32px rgba(247,147,26,.3);
+    letter-spacing: 1px;
+    margin-top: 8px;
+  }
+  .start-btn:hover { transform: scale(1.06); box-shadow: 0 12px 40px rgba(247,147,26,.5); }
+
+  /* ─── HUD ─── */
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+  }
+  .hud-lives {
+    display: flex;
+    gap: 4px;
+    font-size: 1.6rem;
+  }
+  .hud-lives .lost { filter: grayscale(1); opacity: .2; }
+  .hud-level {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    color: var(--orange);
+  }
+  .hud-level span { color: var(--gold); }
+  .hud-score {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: rgba(255,255,255,.6);
+  }
+  .hud-streak {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gold);
+  }
+
+  .xp-bar-wrap {
+    width: 100%;
+    height: 8px;
+    background: rgba(255,255,255,.06);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .xp-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--orange), var(--gold));
+    border-radius: 10px;
+    transition: width .5s cubic-bezier(.25,.46,.45,.94);
+  }
+
+  /* ─── GAME AREA ─── */
+  .game-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .char-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    animation: glow 3s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  .char-emoji {
+    font-size: 4.5rem;
+    line-height: 1;
+    transition: all .5s cubic-bezier(.25,.46,.45,.94);
+    animation: float 3s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  .char-emoji.level-up {
+    animation: zoomIn .5s ease, float 3s ease-in-out infinite .5s;
+  }
+  .char-info { flex: 1; min-width: 0; }
+  .char-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.3rem;
+    background: linear-gradient(135deg, var(--orange), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .char-title {
+    font-size: 1rem;
+    color: rgba(255,255,255,.4);
+    margin-top: 2px;
+  }
+  .char-stats {
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
+    font-size: .85rem;
+    color: rgba(255,255,255,.5);
+  }
+  .char-stats span { display: flex; align-items: center; gap: 3px; }
+  .char-stats .val { color: var(--orange); font-weight: 700; }
+
+  /* ─── QUESTION ─── */
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 20px 18px;
+    flex-shrink: 0;
+  }
+  .q-level-label {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,.25);
+    margin-bottom: 6px;
+  }
+  .q-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #fff;
+  }
+
+  .answers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .ans-btn {
+    padding: 14px 12px;
+    border-radius: 16px;
+    border: 2px solid var(--card-border);
+    background: var(--card);
+    color: #fff;
+    font-size: .95rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: center;
+    line-height: 1.3;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-break: break-word;
+  }
+  .ans-btn:hover {
+    border-color: rgba(247,147,26,.3);
+    background: rgba(247,147,26,.06);
+    transform: translateY(-2px);
+  }
+  .ans-btn.correct {
+    border-color: var(--green);
+    background: rgba(0,212,170,.12);
+    animation: pulse .3s ease;
+  }
+  .ans-btn.wrong {
+    border-color: var(--red);
+    background: rgba(255,71,87,.12);
+    animation: shake .4s ease;
+  }
+  .ans-btn:disabled { cursor: not-allowed; opacity: .5; }
+  .ans-btn:disabled:hover { transform: none; }
+
+  /* ─── FEEDBACK ─── */
+  .feedback {
+    text-align: center;
+    padding: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    min-height: 36px;
+    flex-shrink: 0;
+  }
+  .feedback.correct { color: var(--green); }
+  .feedback.wrong { color: var(--red); }
+
+  /* ─── LEVEL UP OVERLAY ─── */
+  #levelUpOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0,0,0,.85);
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn .3s ease;
+  }
+  #levelUpOverlay.active { display: flex; }
+  .level-up-box {
+    text-align: center;
+    padding: 40px 32px;
+    max-width: 400px;
+    animation: zoomIn .5s cubic-bezier(.25,.46,.45,.94);
+  }
+  .level-up-box .big-emoji {
+    font-size: 6rem;
+    animation: bounce 1s ease-in-out infinite;
+  }
+  .level-up-box h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.4rem;
+    background: linear-gradient(135deg, var(--orange), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 8px 0 4px;
+  }
+  .level-up-box .sub {
+    font-size: 1.2rem;
+    color: rgba(255,255,255,.5);
+    margin-bottom: 12px;
+  }
+  .level-up-box .stats-up {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .level-up-box .stat-up {
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.04);
+    font-size: .9rem;
+    color: rgba(255,255,255,.5);
+  }
+  .level-up-box .stat-up .num {
+    display: block;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--orange);
+  }
+  .level-up-box .continue-btn {
+    background: linear-gradient(135deg, var(--orange), #e67e00);
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 14px 36px;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 12px;
+    font-family: 'Fredoka One', cursive;
+    transition: all .3s;
+  }
+  .level-up-box .continue-btn:hover { transform: scale(1.06); }
+
+  /* ─── CONFETTI ─── */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    z-index: 200;
+    animation: confetti-fall linear forwards;
+    pointer-events: none;
+  }
+
+  /* ─── GAME OVER ─── */
+  .game-over-box {
+    text-align: center;
+    padding: 40px 24px;
+  }
+  .game-over-box .icon { font-size: 5rem; display: block; margin-bottom: 8px; }
+  .game-over-box h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.2rem;
+  }
+  .game-over-box .final-score {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--orange);
+    margin: 8px 0;
+  }
+  .game-over-box .final-level {
+    color: rgba(255,255,255,.4);
+    font-size: 1.1rem;
+  }
+  .game-over-box .retry-btn {
+    background: linear-gradient(135deg, var(--orange), #e67e00);
+    border: none;
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding: 14px 40px;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 16px;
+    font-family: 'Fredoka One', cursive;
+    transition: all .3s;
+  }
+  .game-over-box .retry-btn:hover { transform: scale(1.06); }
+  .game-over-box .home-btn {
+    background: transparent;
+    border: 2px solid rgba(255,255,255,.1);
+    color: rgba(255,255,255,.5);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 10px 28px;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 8px;
+    font-family: inherit;
+    transition: all .3s;
+  }
+  .game-over-box .home-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+  /* ─── VICTORY ─── */
+  .victory-box {
+    text-align: center;
+    padding: 32px 24px;
+  }
+  .victory-box .icon { font-size: 6rem; display: block; margin-bottom: 8px; animation: bounce 1.5s ease-in-out infinite; }
+  .victory-box h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.6rem;
+    background: linear-gradient(135deg, var(--orange), var(--gold), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .victory-box .sub {
+    color: rgba(255,255,255,.4);
+    font-size: 1.1rem;
+    max-width: 320px;
+    margin: 8px auto;
+    line-height: 1.5;
+  }
+  .victory-box .final-score {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--gold);
+    margin: 12px 0;
+  }
+  .victory-box .badges {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 12px 0;
+    font-size: 2rem;
+  }
+  .victory-box .play-again-btn {
+    background: linear-gradient(135deg, var(--orange), #e67e00);
+    border: none;
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding: 14px 40px;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 16px;
+    font-family: 'Fredoka One', cursive;
+    transition: all .3s;
+  }
+  .victory-box .play-again-btn:hover { transform: scale(1.06); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 420px) {
+    #game { padding: 12px 10px 20px; }
+    .title-h1 { font-size: 2rem; }
+    .title-logo { font-size: 3.5rem; }
+    .char-emoji { font-size: 3.2rem; }
+    .char-name { font-size: 1.1rem; }
+    .q-text { font-size: 1rem; }
+    .ans-btn { font-size: .85rem; padding: 12px 8px; min-height: 44px; }
+    .hud { padding: 8px 12px; }
+    .hud-level { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="game">
+
+  <!-- TITLE SCREEN -->
+  <div class="screen active" id="screenTitle">
+    <div class="title-logo">\u20BF</div>
+    <div class="title-logo-sub">Know Your Stack</div>
+    <h1 class="title-h1">Bitcoin<br>Quest</h1>
+    <p class="title-sub">Answer Bitcoin questions, level up your hero, and become a Bitcoin GOD!</p>
+    <div class="title-char-preview" id="charPreview">
+      <span>\u{1F476}</span><span>\u{1F423}</span><span>\u{26CF}</span><span>\u{1FA99}</span><span>\u{26A1}</span>
+      <span>\u{1F6E1}</span><span>\u{1F52E}</span><span>\u{1F5E1}</span><span>\u{1F432}</span><span class="active">\u{1F3C6}</span>
+    </div>
+    <button class="start-btn" onclick="startGame()">Start Quest</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div class="screen" id="screenGame">
+    <div class="hud">
+      <div class="hud-lives" id="hudLives"></div>
+      <div class="hud-level">Lv <span id="hudLevel">1</span>/10</div>
+      <div class="hud-score" id="hudScore">Score: 0</div>
+      <div class="hud-streak" id="hudStreak"></div>
+    </div>
+    <div class="xp-bar-wrap">
+      <div class="xp-bar-fill" id="xpBar"></div>
+    </div>
+    <div class="game-area">
+      <div class="char-area">
+        <div class="char-emoji" id="charEmoji">\u{1F476}</div>
+        <div class="char-info">
+          <div class="char-name" id="charName">Bitcoin Baby</div>
+          <div class="char-title" id="charTitle">The journey begins</div>
+          <div class="char-stats">
+            <span>\u2764\uFE0F <span class="val" id="charHp">3</span></span>
+            <span>\u2B50 <span class="val" id="charXp">0</span></span>
+            <span>\u{1F3AF} x<span class="val" id="charMult">1.0</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="q-card">
+        <div class="q-level-label" id="qLevelLabel">LEVEL 1 \u2022 BASICS</div>
+        <div class="q-text" id="qText">Loading question...</div>
+      </div>
+      <div class="answers" id="answers"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  </div>
+
+  <!-- GAME OVER SCREEN -->
+  <div class="screen" id="screenGameOver">
+    <div class="game-over-box">
+      <span class="icon">\u{1F480}</span>
+      <h2>Game Over</h2>
+      <p class="final-score" id="goScore">0</p>
+      <p class="final-level" id="goLevel">Reached Level 1</p>
+      <p style="color:rgba(255,255,255,.3);font-size:.95rem;margin-top:4px">You'll get 'em next time, hero.</p>
+      <button class="retry-btn" onclick="startGame()">Try Again</button>
+      <button class="home-btn" onclick="showTitle()">Back to Menu</button>
+    </div>
+  </div>
+
+  <!-- VICTORY SCREEN -->
+  <div class="screen" id="screenVictory">
+    <div class="victory-box">
+      <span class="icon">\u{1F3C6}</span>
+      <h2>Bitcoin GOD!</h2>
+      <p class="sub">You've mastered every level. You are truly a Bitcoin legend.</p>
+      <div class="badges" id="victoryBadges"></div>
+      <p class="final-score" id="victoryScore">0</p>
+      <button class="play-again-btn" onclick="startGame()">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- LEVEL UP OVERLAY -->
+<div id="levelUpOverlay">
+  <div class="level-up-box">
+    <div class="big-emoji" id="luEmoji">\u{1F476}</div>
+    <h2>Level Up!</h2>
+    <div class="sub" id="luSub">Bitcoin Baby \u2192 Crypto Hatchling</div>
+    <div class="stats-up" id="luStats"></div>
+    <button class="continue-btn" onclick="closeLevelUp()">Continue \u2192</button>
+  </div>
+</div>
+
+<script>
+  /* ==================== GAME DATA ==================== */
+  var LEVELS = [
+    { id:1, name:'Bitcoin Baby',     emoji:'\u{1F476}', title:'The journey begins',     hp:3, mult:1.0, glow:'rgba(247,147,26,.2)' },
+    { id:2, name:'Crypto Hatchling', emoji:'\u{1F423}', title:'Learning to fly',        hp:3, mult:1.1, glow:'rgba(247,147,26,.25)' },
+    { id:3, name:'Block Miner',      emoji:'\u26CF\uFE0F',  title:'Digging deep',           hp:4, mult:1.2, glow:'rgba(247,147,26,.3)' },
+    { id:4, name:'Sat Stacker',      emoji:'\u{1FA99}', title:'Stacking sats daily',    hp:4, mult:1.3, glow:'rgba(255,215,0,.3)' },
+    { id:5, name:'Lightning Rider',  emoji:'\u26A1',    title:'Speed of Light(ning)',  hp:4, mult:1.5, glow:'rgba(0,212,170,.3)' },
+    { id:6, name:'HODL Guardian',    emoji:'\u{1F6E1}\uFE0F',  title:'Protecting the stack', hp:5, mult:1.7, glow:'rgba(59,130,246,.3)' },
+    { id:7, name:'Chain Seer',       emoji:'\u{1F52E}', title:'Reading the mempool',   hp:5, mult:2.0, glow:'rgba(139,92,246,.35)' },
+    { id:8, name:'UTXO Hunter',      emoji:'\u{1F5E1}\uFE0F',  title:'Coin control master', hp:5, mult:2.5, glow:'rgba(255,107,157,.35)' },
+    { id:9, name:'Dragon Hodler',    emoji:'\u{1F432}', title:'Fearless accumulator',   hp:6, mult:3.0, glow:'rgba(247,147,26,.4)' },
+    { id:10,name:'Bitcoin GOD',      emoji:'\u{1F3C6}', title:'Ultimate Bitcoiner',    hp:7, mult:5.0, glow:'rgba(255,215,0,.5)' }
+  ];
+
+  var QUESTIONS = [
+    // Level 1 - Basics
+    { level:1, q:'What is Bitcoin?',         a:['A digital currency created in 2009','A stock market index','A social media platform','A type of credit card'], c:0, topic:'Basics' },
+    { level:1, q:'Who created Bitcoin?',     a:['Elon Musk','Satoshi Nakamoto','Vitalik Buterin','Mark Zuckerberg'], c:1, topic:'Basics' },
+    { level:1, q:'When was the Bitcoin whitepaper published?', a:['2007','2008','2009','2010'], c:1, topic:'Basics' },
+    // Level 2 - Supply & Units
+    { level:2, q:'What is the maximum supply of Bitcoin?', a:['10 million','21 million','100 million','Unlimited'], c:1, topic:'Supply' },
+    { level:2, q:'What is the smallest unit of Bitcoin called?', a:['Cent','Satoshi','Bit','Wei'], c:1, topic:'Supply' },
+    { level:2, q:'What happens to mining rewards every 210,000 blocks?', a:['They double','They are cut in half','They stay the same','They go to zero'], c:1, topic:'Supply' },
+    // Level 3 - Mining
+    { level:3, q:'What is Bitcoin mining?', a:['Digging for digital gold','Solving proofs of work to validate transactions','Printing new money','Trading on exchanges'], c:1, topic:'Mining' },
+    { level:3, q:'What is a Bitcoin node?', a:['A type of wallet app','A computer that validates transactions and relays blocks','A mining pool operator','An exchange order book'], c:1, topic:'Mining' },
+    { level:3, q:'How often does the Bitcoin difficulty adjust?', a:['Every block','Every 2016 blocks (~2 weeks)','Every month','Every year'], c:1, topic:'Mining' },
+    // Level 4 - Wallets & Keys
+    { level:4, q:'What does "not your keys, not your coins" mean?', a:['Keys are optional','Without your private keys you don\'t truly own your Bitcoin','You need multiple keys for security','Keys are not important'], c:1, topic:'Wallets' },
+    { level:4, q:'What is a hardware wallet?', a:['A physical Bitcoin coin','A device that stores private keys offline','A mining machine','A USB cable'], c:1, topic:'Wallets' },
+    { level:4, q:'What is a seed phrase?', a:['A password for your exchange','A 12-24 word backup of your private key','A Bitcoin address','A transaction ID'], c:1, topic:'Wallets' },
+    // Level 5 - Tech Concepts
+    { level:5, q:'What is a UTXO?', a:['A type of exchange order','Unspent Transaction Output','A mining algorithm','A wallet format'], c:1, topic:'Tech' },
+    { level:5, q:'What did SegWit improve?', a:['Mining speed','Transaction capacity and fixed malleability','Privacy only','The price of Bitcoin'], c:1, topic:'Tech' },
+    { level:5, q:'What is the Lightning Network?', a:['A faster Bitcoin blockchain','A second-layer protocol for instant, cheap payments','A mining pool','A wallet app'], c:1, topic:'Tech' },
+    // Level 6 - On-Chain
+    { level:6, q:'What does MVRV stand for?', a:['Market Value to Realized Value','Mining Value Ratio','Maximum Vault Reserve Value','Minimum Volatility Range'], c:0, topic:'On-chain' },
+    { level:6, q:'What is hash rate?', a:['The speed of transactions','The total computing power securing Bitcoin','The price of Bitcoin','The number of wallets'], c:1, topic:'On-chain' },
+    { level:6, q:'What is the mempool?', a:['A pool of miners','Where unconfirmed transactions wait to be mined','A memory chip in miners','A wallet backup'], c:1, topic:'On-chain' },
+    // Level 7 - Privacy & Security
+    { level:7, q:'What is coin control?', a:['Government crypto regulation','Manually selecting UTXOs for better privacy and fees','A trading strategy','A wallet type'], c:1, topic:'Privacy' },
+    { level:7, q:'What is a multi-sig wallet?', a:['A wallet with many passwords','Requires M-of-N signatures to spend','A shared bank account','A mining pool'], c:1, topic:'Privacy' },
+    { level:7, q:'What is self-custody?', a:['Storing coins on an exchange','Holding your own private keys without third parties','Using a financial advisor','Paper trading'], c:1, topic:'Privacy' },
+    // Level 8 - Protocol
+    { level:8, q:'What did Taproot enable?', a:['More Bitcoin supply','Schnorr signatures and better smart contracts','Faster mining','Lower energy use'], c:1, topic:'Protocol' },
+    { level:8, q:'What is a soft fork?', a:['A radical chain split','A backward-compatible protocol upgrade','A new cryptocurrency','A mining difficulty change'], c:1, topic:'Protocol' },
+    { level:8, q:'What does BIP stand for?', a:['Bitcoin Investment Plan','Bitcoin Improvement Proposal','Block Input Protocol','Base Integration Process'], c:1, topic:'Protocol' },
+    // Level 9 - Macro
+    { level:9, q:'What is the stock-to-flow model?', a:['A price model based on Bitcoin scarcity','A trading indicator','A mining efficiency metric','A wallet tracking tool'], c:0, topic:'Macro' },
+    { level:9, q:'After all 21M Bitcoin are mined, how do miners earn?', a:['They stop mining','Only from transaction fees','New Bitcoin is created','The network shuts down'], c:1, topic:'Macro' },
+    { level:9, q:'What is a Bitcoin ETF?', a:['A fund that tracks Bitcoin price on traditional markets','A trading bot','A mining contract','A wallet type'], c:0, topic:'Macro' },
+    // Level 10 - Master
+    { level:10, q:'What did Satoshi Nakamoto solve with Bitcoin?', a:['The stock market','The Byzantine Generals Problem (distributed consensus)','Climate change','Internet speed'], c:1, topic:'Master' },
+    { level:10, q:'What is the difference between a full node and a light node?', a:['Full nodes validate all rules; light nodes trust others','Full nodes are faster','Light nodes are more secure','There is no difference'], c:0, topic:'Master' },
+    { level:10, q:'What is the purpose of the difficulty adjustment?', a:['To make mining always harder','To keep block time near 10 minutes','To reduce energy','To increase transaction speed'], c:1, topic:'Master' }
+  ];
+
+  /* ==================== GAME STATE ==================== */
+  var G = {};
+
+  function initState() {
+    G.level = 1;
+    G.xp = 0;
+    G.xpNeeded = 100;
+    G.hp = 3;
+    G.maxHp = 3;
+    G.score = 0;
+    G.streak = 0;
+    G.currentQ = 0;
+    G.qIndex = 0;
+    G.answered = false;
+    G.gameOver = false;
+    G.victory = false;
+    G.questions = [];
+    G.badges = [];
+  }
+
+  /* ==================== QUESTIONS ==================== */
+  function getQuestionsForLevel(lv) {
+    return QUESTIONS.filter(function(q) { return q.level === lv; });
+  }
+
+  /* ==================== RENDER ==================== */
+  function renderHUD() {
+    var hearts = '';
+    for (var i = 0; i < G.maxHp; i++) {
+      hearts += '<span class="' + (i < G.hp ? '' : 'lost') + '">\u2764\uFE0F</span>';
+    }
+    document.getElementById('hudLives').innerHTML = hearts;
+    document.getElementById('hudLevel').textContent = G.level;
+    document.getElementById('hudScore').textContent = 'Score: ' + G.score;
+    document.getElementById('hudStreak').textContent = G.streak > 0 ? G.streak + ' \u{1F525}' : '';
+    updateXPBar();
+  }
+
+  function updateXPBar() {
+    var pct = Math.min(100, (G.xp / G.xpNeeded) * 100);
+    document.getElementById('xpBar').style.width = pct + '%';
+  }
+
+  function renderCharacter() {
+    var lv = LEVELS[G.level - 1];
+    document.getElementById('charEmoji').textContent = lv.emoji;
+    document.getElementById('charName').textContent = lv.name;
+    document.getElementById('charTitle').textContent = lv.title;
+    document.getElementById('charHp').textContent = G.hp + '/' + G.maxHp;
+    document.getElementById('charXp').textContent = G.xp + '/' + G.xpNeeded;
+    document.getElementById('charMult').textContent = lv.mult.toFixed(1);
+    document.getElementById('charEmoji').style.animation = 'none';
+    void document.getElementById('charEmoji').offsetHeight;
+    document.getElementById('charEmoji').style.animation = '';
+  }
+
+  function renderQuestion() {
+    if (G.qIndex >= G.questions.length) {
+      levelUp();
+      return;
+    }
+    var q = G.questions[G.qIndex];
+    document.getElementById('qLevelLabel').textContent = 'LEVEL ' + G.level + ' \u2022 ' + q.topic.toUpperCase();
+    document.getElementById('qText').textContent = q.q;
+
+    var container = document.getElementById('answers');
+    container.innerHTML = '';
+    var labels = ['A','B','C','D'];
+    q.a.forEach(function(opt, i) {
+      var btn = document.createElement('button');
+      btn.className = 'ans-btn';
+      btn.textContent = labels[i] + '. ' + opt;
+      btn.onclick = function() { answerQuestion(i); };
+      btn.dataset.index = i;
+      container.appendChild(btn);
+    });
+
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className = 'feedback';
+    G.answered = false;
+    G.currentQ = q;
+  }
+
+  /* ==================== ANSWER LOGIC ==================== */
+  function answerQuestion(idx) {
+    if (G.answered || G.gameOver || G.victory) return;
+    G.answered = true;
+
+    var q = G.currentQ;
+    var btns = document.querySelectorAll('.ans-btn');
+    btns.forEach(function(b) { b.disabled = true; });
+
+    var correct = idx === q.c;
+    var feedback = document.getElementById('feedback');
+
+    if (correct) {
+      btns[idx].classList.add('correct');
+      var lv = LEVELS[G.level - 1];
+      var xpGain = Math.round(50 * lv.mult);
+      var scoreGain = Math.round(100 * lv.mult);
+      G.xp += xpGain;
+      G.score += scoreGain;
+      G.streak++;
+      feedback.textContent = '\u2705 Correct! +' + xpGain + ' XP  +' + scoreGain + ' pts' + (G.streak > 2 ? '  (' + G.streak + ' streak! \u{1F525})' : '');
+      feedback.className = 'feedback correct';
+      spawnParticles('correct');
+      renderHUD();
+      renderCharacter();
+
+      if (G.xp >= G.xpNeeded) {
+        setTimeout(function() {
+          levelUp();
+        }, 800);
+      } else {
+        setTimeout(function() {
+          G.qIndex++;
+          renderQuestion();
+        }, 800);
+      }
+    } else {
+      btns[idx].classList.add('wrong');
+      btns[q.c].classList.add('correct');
+      G.hp--;
+      G.streak = 0;
+      feedback.textContent = '\u274C Wrong! -1 HP';
+      feedback.className = 'feedback wrong';
+      document.getElementById('game').style.animation = 'shake .4s ease';
+      setTimeout(function() {
+        document.getElementById('game').style.animation = '';
+      }, 400);
+      spawnParticles('wrong');
+      renderHUD();
+      renderCharacter();
+
+      if (G.hp <= 0) {
+        setTimeout(function() { gameOver(); }, 1000);
+      } else {
+        setTimeout(function() {
+          G.qIndex++;
+          renderQuestion();
+        }, 1000);
+      }
+    }
+  }
+
+  /* ==================== LEVEL UP ==================== */
+  function levelUp() {
+    var oldLv = G.level;
+    G.level++;
+    if (G.level > 10) {
+      victory();
+      return;
+    }
+    G.xp = 0;
+
+    var lv = LEVELS[G.level - 1];
+    G.maxHp = lv.hp;
+    if (G.hp < G.maxHp) G.hp = G.maxHp;
+
+    // Show level up overlay
+    document.getElementById('luEmoji').textContent = lv.emoji;
+    var oldName = LEVELS[oldLv - 1].name;
+    document.getElementById('luSub').textContent = oldName + ' \u2192 ' + lv.name;
+
+    var statsHtml = '';
+    statsHtml += '<div class="stat-up">HP <span class="num">' + G.maxHp + '</span></div>';
+    statsHtml += '<div class="stat-up">Mult <span class="num">x' + lv.mult.toFixed(1) + '</span></div>';
+    document.getElementById('luStats').innerHTML = statsHtml;
+
+    document.getElementById('levelUpOverlay').classList.add('active');
+    spawnConfetti();
+
+    // Update game screen
+    G.questions = getQuestionsForLevel(G.level);
+    G.qIndex = 0;
+
+    if (G.questions.length === 0) {
+      // fallback
+      G.questions = getQuestionsForLevel(G.level);
+    }
+
+    renderHUD();
+    renderCharacter();
+  }
+
+  function closeLevelUp() {
+    document.getElementById('levelUpOverlay').classList.remove('active');
+    renderQuestion();
+  }
+
+  /* ==================== GAME OVER ==================== */
+  function gameOver() {
+    G.gameOver = true;
+    showScreen('screenGameOver');
+    document.getElementById('goScore').textContent = 'Score: ' + G.score + ' pts';
+    document.getElementById('goLevel').textContent = 'Reached Level ' + G.level + ' \u2014 ' + LEVELS[G.level - 1].name;
+  }
+
+  /* ==================== VICTORY ==================== */
+  function victory() {
+    G.victory = true;
+    showScreen('screenVictory');
+    document.getElementById('victoryScore').textContent = 'Final Score: ' + G.score + ' pts';
+    var badges = '';
+    var allBadges = ['\u{1F476}','\u{1F423}','\u26CF\uFE0F','\u{1FA99}','\u26A1','\u{1F6E1}\uFE0F','\u{1F52E}','\u{1F5E1}\uFE0F','\u{1F432}','\u{1F3C6}'];
+    allBadges.forEach(function(b) { badges += '<span>' + b + '</span>'; });
+    document.getElementById('victoryBadges').innerHTML = badges;
+    spawnConfetti();
+    spawnConfetti();
+  }
+
+  /* ==================== SCREEN MGMT ==================== */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+    document.getElementById(id).classList.add('active');
+  }
+
+  function showTitle() {
+    showScreen('screenTitle');
+  }
+
+  /* ==================== START GAME ==================== */
+  function startGame() {
+    initState();
+    G.questions = getQuestionsForLevel(1);
+    G.qIndex = 0;
+    G.hp = LEVELS[0].hp;
+    G.maxHp = LEVELS[0].hp;
+
+    showScreen('screenGame');
+    renderHUD();
+    renderCharacter();
+    renderQuestion();
+  }
+
+  /* ==================== PARTICLES ==================== */
+  function spawnParticles(type) {
+    var colors = type === 'correct'
+      ? ['#00D4AA','#F7931A','#FFD700','#00D4FF']
+      : ['#FF4757','#FF6B9D','#FF4757','#FF6B9D'];
+    var emojis = type === 'correct'
+      ? ['\u2728','\u2B50','\u{1F31F}','\u{1F4A5}']
+      : ['\u{1F4A5}','\u{274C}','\u{1F4A2}'];
+
+    for (var i = 0; i < 16; i++) {
+      var el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = (10 + Math.random() * 80) + '%';
+      el.style.top = (30 + Math.random() * 30) + '%';
+      el.style.fontSize = (12 + Math.random() * 16) + 'px';
+      el.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      el.style.animationDelay = (Math.random() * .5) + 's';
+      document.body.appendChild(el);
+      setTimeout(function(e) { e.remove(); }, 4000, el);
+    }
+  }
+
+  function spawnConfetti(count) {
+    count = count || 60;
+    var colors = ['#F7931A','#FFD700','#00D4AA','#8B5CF6','#FF4757','#3B82F6','#FF6B9D','#00D4FF'];
+    var emojis = ['\u2B50','\u2728','\u{1F31F}','\u{1F4A5}','\u{1F389}','\u{1F38A}','\u{1F3C6}','\u20BF'];
+
+    for (var i = 0; i < count; i++) {
+      var el = document.createElement('div');
+      el.className = 'confetti-piece';
+      if (Math.random() > .5) {
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      } else {
+        el.style.width = (6 + Math.random() * 8) + 'px';
+        el.style.height = (6 + Math.random() * 8) + 'px';
+        el.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+        el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      }
+      el.style.left = (Math.random() * 100) + '%';
+      el.style.top = '-10px';
+      el.style.fontSize = (14 + Math.random() * 14) + 'px';
+      el.style.animationDuration = (3 + Math.random() * 3) + 's';
+      el.style.animationDelay = (Math.random() * 2) + 's';
+      document.body.appendChild(el);
+      setTimeout(function(e) { e.remove(); }, 6000, el);
+    }
+  }
+</script>
+
+</body>
+</html>
