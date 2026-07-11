@@ -1021,6 +1021,7 @@
     <p>Advanced tools, strategies, and alpha for Bitcoiners who want to go from intermediate to elite.</p>
     <div class="hero-actions">
       <a href="tools.html" class="btn btn-primary">Explore tools &#8594;</a>
+      <a href="bitcoin-quest.html" class="btn btn-primary" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;">&#127918; Play the Game</a>
       <a href="index.html#quiz" class="btn btn-outline-light">Test your knowledge</a>
     </div>
   </section>
@@ -1053,7 +1054,7 @@
   <!-- CHART -->
   <div class="chart-section">
     <div class="chart-title">Bitcoin / USD</div>
-    <div class="chart-price">$62,431 <span id="chartChange">+2.34%</span></div>
+    <div class="chart-price">$<span id="chartPriceNum">62,431</span> <span id="chartChange">+2.34%</span></div>
     <div class="chart-timeframes">
       <button class="chart-tf" data-tf="1d" onclick="switchChart('1d')">1D</button>
       <button class="chart-tf" data-tf="1w" onclick="switchChart('1w')">1W</button>
@@ -1397,7 +1398,7 @@
 
   <script>
     // ─── SATOSHI CONVERTER ───
-    var btcToUsd = 62431;
+    var btcToUsd = 62431; // updated live from CoinGecko
     function convertFrom(source) {
       var btc = document.getElementById('btcInput');
       var sat = document.getElementById('satInput');
@@ -1676,6 +1677,37 @@
         b.classList.toggle('active', b.getAttribute('data-tf') === tf);
       });
     }
+
+    // ─── LIVE BTC PRICE FROM COINGECKO ───
+    var SYM_PREFIX = { usd:'$', eur:'€', gbp:'£', jpy:'¥', cny:'¥', sgd:'S$', myr:'RM', idr:'Rp', php:'₱', thb:'฿', vnd:'₫', mmk:'K', bnd:'B$', aud:'A$', krw:'₩', inr:'₹', chf:'Fr', brl:'R$' };
+    var FIATS = Object.keys(SYM_PREFIX).join(',');
+
+    function fetchBtcPrice() {
+      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=' + FIATS + '&include_24hr_change=true')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var p = data.bitcoin;
+          // chart
+          var usd = p.usd;
+          document.getElementById('chartPriceNum').textContent = usd.toLocaleString('en-US');
+          document.getElementById('chartChange').textContent = (p.usd_24h_change >= 0 ? '+' : '') + p.usd_24h_change.toFixed(2) + '%';
+          document.getElementById('chartChange').style.color = p.usd_24h_change >= 0 ? '#00D4AA' : '#FF6B6B';
+          // converter
+          btcToUsd = usd;
+          // ticker
+          document.querySelectorAll('.ticker-item').forEach(function(el) {
+            var sym = el.querySelector('.ticker-symbol').textContent.toLowerCase();
+            var price = p[sym];
+            if (price) {
+              var fmt = price >= 1000 ? Math.round(price).toLocaleString('en-US') : price.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:2});
+              el.querySelector('.ticker-price').textContent = (SYM_PREFIX[sym] || sym.toUpperCase() + ' ') + fmt;
+            }
+          });
+        })
+        .catch(function() { /* keep hardcoded fallback */ });
+    }
+    fetchBtcPrice();
+    setInterval(fetchBtcPrice, 60000);
   </script>
 </body>
 </html>
