@@ -952,18 +952,101 @@
         const x = c * CONFIG.TILE_SIZE;
         const y = r * CONFIG.TILE_SIZE;
         const tile = map.tiles[r][c];
+        const h = (c * 7 + r * 13) % 17; // deterministic hash per tile
+        const h2 = (c * 11 + r * 5) % 13;
+
         if (tile === 1) {
+          // ── Wall with brick detail ──
           ctx.fillStyle = CONFIG.WALL_COLOR;
           ctx.fillRect(x, y, CONFIG.TILE_SIZE, CONFIG.TILE_SIZE);
-          ctx.fillStyle = 'rgba(255,255,255,.04)';
+
+          // Brick mortar lines
+          ctx.fillStyle = 'rgba(0,0,0,.15)';
+          ctx.fillRect(x, y + 15, CONFIG.TILE_SIZE, 1);
+          if (h % 2 === 0) {
+            ctx.fillRect(x, y + 7, CONFIG.TILE_SIZE, 1);
+            ctx.fillRect(x, y + 23, CONFIG.TILE_SIZE, 1);
+          }
+          // Vertical brick seams (alternating)
+          ctx.fillRect(x + 15, y + (h % 2 === 0 ? 0 : 14), 1, 16);
+
+          // Top highlight
+          ctx.fillStyle = 'rgba(255,255,255,.05)';
           ctx.fillRect(x, y, CONFIG.TILE_SIZE, 2);
+          ctx.fillRect(x, y, 2, CONFIG.TILE_SIZE);
+
+          // Moss / vine detail on some walls
+          if (h % 4 === 0) {
+            ctx.fillStyle = 'rgba(60,160,60,.15)';
+            ctx.fillRect(x + 18, y + 4, 3, 6);
+            ctx.fillRect(x + 24, y + 6, 2, 4);
+          } else if (h % 7 === 0) {
+            ctx.fillStyle = 'rgba(100,200,100,.1)';
+            ctx.fillRect(x + 4, y + 18, 4, 3);
+            ctx.fillRect(x + 8, y + 20, 3, 2);
+          }
+
+          // Wall crack
+          if (h2 === 0) {
+            ctx.fillStyle = 'rgba(0,0,0,.08)';
+            ctx.fillRect(x + 10, y + 8, 1, 3);
+            ctx.fillRect(x + 11, y + 10, 2, 1);
+          }
+
         } else {
-          ctx.fillStyle = (c + r) % 2 === 0 ? CONFIG.FLOOR_A : CONFIG.FLOOR_B;
+          // ── Floor with varied detail ──
+          const isDark = (c + r) % 2 === 0;
+          ctx.fillStyle = isDark ? CONFIG.FLOOR_A : CONFIG.FLOOR_B;
           ctx.fillRect(x, y, CONFIG.TILE_SIZE, CONFIG.TILE_SIZE);
-          if ((c * 7 + r * 13) % 5 === 0) {
-            ctx.fillStyle = 'rgba(255,255,255,.03)';
-            ctx.fillRect(x + 8, y + 20, 2, 2);
-            ctx.fillRect(x + 22, y + 10, 2, 2);
+
+          // Subtle noise texture
+          if (h % 3 === 0) {
+            ctx.fillStyle = 'rgba(255,255,255,.02)';
+            ctx.fillRect(x + 10 + (h % 5), y + 8 + (h2 % 5), 2, 2);
+          }
+
+          // Grass tufts
+          if (h === 1 || h === 3 || h === 5) {
+            ctx.fillStyle = 'rgba(80,180,80,.2)';
+            const gx = x + 6 + (h * 3) % 16;
+            const gy = y + 18 + (h2 * 2) % 8;
+            ctx.fillRect(gx, gy, 2, 4);
+            ctx.fillRect(gx + 3, gy + 1, 2, 3);
+          }
+
+          // Small flowers (colored dots)
+          if (h === 7 || h === 11) {
+            const colors = ['rgba(255,100,150,.3)', 'rgba(255,200,50,.3)', 'rgba(200,100,255,.3)', 'rgba(100,200,255,.3)'];
+            ctx.fillStyle = colors[h2 % colors.length];
+            const fx = x + 8 + (h * 5) % 12;
+            const fy = y + 6 + (h2 * 3) % 12;
+            ctx.fillRect(fx, fy, 3, 3);
+            ctx.fillRect(fx + 1, fy - 2, 1, 2);
+          }
+
+          // Small rocks
+          if (h2 === 2 || h2 === 7) {
+            ctx.fillStyle = 'rgba(120,120,120,.15)';
+            const rx = x + 4 + (h * 3) % 20;
+            const ry = y + 20 + (h2 * 2) % 8;
+            ctx.fillRect(rx, ry, 3, 2);
+            ctx.fillRect(rx + 1, ry - 1, 2, 1);
+          }
+
+          // Stone path accent on certain tiles
+          if (h % 8 === 0 && isDark) {
+            ctx.fillStyle = 'rgba(100,100,80,.08)';
+            ctx.fillRect(x + 4, y + 4, 24, 24);
+            ctx.fillStyle = 'rgba(80,80,60,.06)';
+            ctx.fillRect(x + 6, y + 6, 20, 20);
+          }
+
+          // Mushroom (rare)
+          if (h === 13 && h2 === 8) {
+            ctx.fillStyle = 'rgba(200,150,100,.2)';
+            ctx.fillRect(x + 12, y + 22, 3, 5);
+            ctx.fillStyle = 'rgba(180,100,180,.15)';
+            ctx.fillRect(x + 10, y + 20, 7, 4);
           }
         }
       }
@@ -1209,7 +1292,6 @@
   /* ── Attack (Power Move Quiz) ──────────────────────────────────── */
 
   function doAttack() {
-    // Pick a question matching the enemy's difficulty tier
     const tier = state.battle.enemy.tier;
     const pool = BTC_QUESTIONS.filter(q => q.tier === tier);
     const q = pool.length > 0 ? pool[rand(0, pool.length - 1)] : BTC_QUESTIONS[rand(0, BTC_QUESTIONS.length - 1)];
@@ -1225,13 +1307,16 @@
     battleAnswers.classList.add('active');
     battleAnswers.innerHTML = '';
 
-    setBattleLog('Answer to unleash <span class="highlight">' + powerMove + '</span>!');
+    setBattleLog(
+      '<span style="color:#F7931A;font-size:8px;">⚡ ' + powerMove + '</span><br>' +
+      '<span style="color:rgba(255,255,255,.8);font-size:7px;">' + q.q + '</span>'
+    );
 
     const labels = ['A', 'B', 'C', 'D'];
     q.a.forEach((opt, i) => {
       const btn = document.createElement('button');
       btn.className = 'ans-btn';
-      btn.textContent = labels[i] + ') ' + opt;
+      btn.innerHTML = '<span style="color:#F7931A;font-weight:bold;">' + labels[i] + '.</span> ' + opt;
       btn.onclick = () => handleAnswer(i, q);
       battleAnswers.appendChild(btn);
     });
@@ -1248,13 +1333,13 @@
     state.battle.turnLock = true;
 
     if (correct) {
-      /* ── Power Move: massive damage to enemy ── */
       const rawDmg = state.player.attack * 3 + rand(5, 15);
       const finalDmg = Math.max(1, rawDmg - state.battle.enemy.defense);
       state.battle.enemy.hp = Math.max(0, state.battle.enemy.hp - finalDmg);
 
       setBattleLog(
-        '<span class="highlight">' + state.battle.powerMove + '</span>! ' +
+        '<span style="color:#00D4AA;">✓ Correct!</span><br>' +
+        '<span class="highlight">' + state.battle.powerMove + '</span> ' +
         '<span class="damage">-' + finalDmg + ' HP</span>'
       );
 
@@ -1274,14 +1359,15 @@
       }, 1000);
 
     } else {
-      /* ── Wrong answer: counter-attack hits the player ── */
       const rawDmg = state.battle.enemy.attack * 2 + rand(2, 5);
       const finalDmg = Math.max(1, rawDmg - state.player.defense);
       state.battle.playerHp = Math.max(0, state.battle.playerHp - finalDmg);
       state.player.hp = state.battle.playerHp;
 
       setBattleLog(
-        'Wrong! <span class="damage">' + state.battle.counterMove + '</span> hits you for <span class="damage">-' + finalDmg + ' HP</span>'
+        '<span style="color:#FF4757;">✗ Wrong!</span> ' +
+        '<span style="color:rgba(255,255,255,.5);font-size:7px;">(' + q.a[q.c] + ')</span><br>' +
+        '<span class="damage">' + state.battle.counterMove + '</span> hits you for <span class="damage">-' + finalDmg + ' HP</span>'
       );
 
       if (state.battle.playerHp <= 0) {
@@ -1292,7 +1378,6 @@
         return;
       }
 
-      // No damage to enemy — pass turn
       setTimeout(() => {
         enemyTurn();
       }, 1000);
