@@ -1,1449 +1,487 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Bitcoin Quest RPG — From Zero to Hero</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>\u20BF</text></svg>">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700;800&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bitcoin Quest — Phase 1</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>\u20BF</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    /* ─── RESET & BASE ─── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0b0b1a;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; font-family: 'Press Start 2P', monospace;
+      overflow: hidden; user-select: none;
+    }
 
-  body {
-    background: #0b0b1a;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    font-family: 'Inter', sans-serif;
-    overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
-  }
+    /* ─── GAME WRAPPER ─── */
+    #gameWrap {
+      position: relative;
+      max-width: 640px; width: 100%;
+      border: 2px solid rgba(247,147,26,.25);
+      border-radius: 8px;
+      box-shadow: 0 0 60px rgba(247,147,26,.08);
+    }
 
-  #gameWrap {
-    position: relative;
-    max-width: 100%;
-    max-height: 100vh;
-  }
+    /* Canvas fills wrapper, keeps pixel art sharp */
+    canvas {
+      display: block;
+      width: 100%; height: auto;
+      aspect-ratio: 640 / 480;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      border-radius: 6px;
+    }
 
-  canvas {
-    display: block;
-    width: 100%;
-    max-width: 640px;
-    height: auto;
-    aspect-ratio: 640 / 480;
-    image-rendering: pixelated;
-    border: 2px solid rgba(247,147,26,.2);
-    border-radius: 8px;
-    box-shadow: 0 0 60px rgba(247,147,26,.08);
-  }
+    /* ─── HUD (overlaid on canvas) ─── */
+    #hud {
+      position: absolute; top: 0; left: 0; right: 0;
+      padding: 10px 14px;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      pointer-events: none; z-index: 10;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0,0,0,.8);
+      font-size: 9px;
+    }
+    #hudLeft  { display: flex; align-items: center; gap: 8px; }
+    #hudRight { display: flex; align-items: center; gap: 8px; }
 
-  #hud {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    padding: 10px 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    pointer-events: none;
-    z-index: 10;
-    font-size: 11px;
-    font-family: 'Press Start 2P', monospace;
-    color: #fff;
-    text-shadow: 0 2px 4px rgba(0,0,0,.8);
-  }
-  #hudLeft { display: flex; align-items: center; gap: 10px; }
-  #hudRight { display: flex; align-items: center; gap: 10px; }
-  .hp-bar-wrap {
-    width: 80px; height: 8px;
-    background: rgba(0,0,0,.5);
-    border: 1px solid rgba(255,255,255,.15);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .hp-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #FF4757, #FF6B9D);
-    transition: width .3s;
-    border-radius: 4px;
-  }
-  .xp-bar-wrap {
-    width: 60px; height: 6px;
-    background: rgba(0,0,0,.5);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  .xp-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #F7931A, #FFD700);
-    transition: width .3s;
-    border-radius: 3px;
-  }
+    /* HP bar */
+    .bar-wrap {
+      width: 80px; height: 8px;
+      background: rgba(0,0,0,.5);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 4px; overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%; width: 100%;
+      border-radius: 4px;
+      transition: width .25s ease;
+    }
+    .bar-fill.hp   { background: linear-gradient(90deg, #FF4757, #FF6B9D); }
+    .bar-fill.xp   { background: linear-gradient(90deg, #F7931A, #FFD700); }
 
-  /* BATTLE OVERLAY */
-  #battleOverlay {
-    display: none;
-    position: absolute;
-    inset: 0;
-    z-index: 20;
-    background: rgba(0,0,0,.88);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    animation: fadeIn .3s ease;
-  }
-  #battleOverlay.active { display: flex; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
-
-  .battle-scene {
-    width: 100%;
-    max-width: 560px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .battle-top, .battle-bottom {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: rgba(255,255,255,.03);
-    border: 1px solid rgba(255,255,255,.06);
-    border-radius: 12px;
-  }
-  .battle-top { justify-content: flex-start; }
-  .battle-bottom { justify-content: flex-start; }
-  .battle-sprite {
-    font-size: 2.8rem;
-    width: 48px;
-    text-align: center;
-    flex-shrink: 0;
-  }
-  .battle-info { flex: 1; min-width: 0; }
-  .battle-name {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 9px;
-    margin-bottom: 4px;
-    color: #fff;
-  }
-  .battle-hp-wrap {
-    width: 100%; height: 10px;
-    background: rgba(0,0,0,.5);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 5px;
-    overflow: hidden;
-  }
-  .battle-hp-fill {
-    height: 100%;
-    border-radius: 5px;
-    transition: width .4s ease;
-  }
-  .battle-hp-fill.enemy { background: linear-gradient(90deg, #FF4757, #FF6B9D); }
-  .battle-hp-fill.player { background: linear-gradient(90deg, #00D4AA, #3B82F6); }
-  .battle-hp-text {
-    font-size: 9px;
-    font-family: 'Press Start 2P', monospace;
-    color: rgba(255,255,255,.4);
-    margin-top: 2px;
-  }
-
-  .battle-q {
-    padding: 16px 14px;
-    background: rgba(247,147,26,.06);
-    border: 1px solid rgba(247,147,26,.15);
-    border-radius: 12px;
-    text-align: center;
-  }
-  .battle-q-text {
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    line-height: 1.4;
-    margin-bottom: 10px;
-  }
-  .battle-answers {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 6px;
-  }
-  .battle-ans-btn {
-    padding: 10px 6px;
-    border-radius: 10px;
-    border: 2px solid rgba(255,255,255,.1);
-    background: rgba(255,255,255,.04);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all .2s;
-    text-align: center;
-    line-height: 1.3;
-    min-height: 42px;
-  }
-  .battle-ans-btn:hover {
-    border-color: rgba(247,147,26,.4);
-    background: rgba(247,147,26,.08);
-    transform: translateY(-1px);
-  }
-  .battle-ans-btn:disabled { cursor: default; opacity: .5; transform: none; }
-  .battle-ans-btn.correct {
-    border-color: #00D4AA;
-    background: rgba(0,212,170,.15);
-  }
-  .battle-ans-btn.wrong {
-    border-color: #FF4757;
-    background: rgba(255,71,87,.15);
-    animation: shake .4s ease;
-  }
-
-  .battle-feedback {
-    text-align: center;
-    font-size: 12px;
-    font-weight: 700;
-    min-height: 22px;
-    padding: 4px;
-  }
-  .battle-feedback.hit { color: #00D4AA; }
-  .battle-feedback.miss { color: #FF4757; }
-  .battle-feedback.info { color: #F7931A; }
-
-  /* Damage float */
-  .dmg-float {
-    position: absolute;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 14px;
-    font-weight: 700;
-    pointer-events: none;
-    z-index: 30;
-    animation: dmgFloat 1s ease-out forwards;
-  }
-  @keyframes dmgFloat {
-    0% { opacity: 1; transform: translateY(0) scale(1); }
-    100% { opacity: 0; transform: translateY(-60px) scale(1.3); }
-  }
-
-  /* LEVEL UP OVERLAY */
-  #levelUpOverlay {
-    display: none;
-    position: absolute;
-    inset: 0;
-    z-index: 25;
-    background: rgba(0,0,0,.9);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn .4s ease;
-  }
-  #levelUpOverlay.active { display: flex; }
-  .lu-box {
-    text-align: center;
-    padding: 32px 24px;
-    max-width: 400px;
-    animation: zoomIn .5s cubic-bezier(.25,.46,.45,.94);
-  }
-  @keyframes zoomIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .lu-box .big-emoji {
-    font-size: 4rem;
-    animation: bounce 1s ease-in-out infinite;
-  }
-  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-  .lu-box h2 {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 16px;
-    color: #FFD700;
-    margin: 8px 0;
-  }
-  .lu-box .sub {
-    font-size: 12px;
-    color: rgba(255,255,255,.5);
-    margin-bottom: 12px;
-  }
-  .lu-box .stats-up {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    margin: 12px 0;
-  }
-  .lu-box .stat-up {
-    padding: 10px 16px;
-    border-radius: 10px;
-    background: rgba(255,255,255,.04);
-    font-size: 11px;
-    color: rgba(255,255,255,.5);
-    text-align: center;
-  }
-  .lu-box .stat-up .num {
-    display: block;
-    font-size: 18px;
-    font-weight: 800;
-    color: #F7931A;
-    font-family: 'Press Start 2P', monospace;
-  }
-  .lu-continue-btn {
-    background: linear-gradient(135deg, #F7931A, #FFD700);
-    border: none;
-    color: #0b0b1a;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
-    padding: 14px 32px;
-    border-radius: 50px;
-    cursor: pointer;
-    margin-top: 12px;
-    transition: all .3s;
-  }
-  .lu-continue-btn:hover { transform: scale(1.06); }
-
-  /* GAME OVER / VICTORY */
-  #endOverlay {
-    display: none;
-    position: absolute;
-    inset: 0;
-    z-index: 30;
-    background: rgba(0,0,0,.92);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn .5s ease;
-  }
-  #endOverlay.active { display: flex; }
-  .end-box {
-    text-align: center;
-    padding: 32px 24px;
-  }
-  .end-box .icon { font-size: 4rem; display: block; margin-bottom: 8px; }
-  .end-box h2 {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 18px;
-    color: #FFD700;
-  }
-  .end-box .score {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 14px;
-    color: #F7931A;
-    margin: 12px 0;
-  }
-  .end-box p {
-    font-size: 11px;
-    color: rgba(255,255,255,.4);
-    margin-bottom: 6px;
-  }
-  .end-btn {
-    background: linear-gradient(135deg, #F7931A, #FFD700);
-    border: none;
-    color: #0b0b1a;
-    font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
-    padding: 14px 32px;
-    border-radius: 50px;
-    cursor: pointer;
-    margin-top: 12px;
-    transition: all .3s;
-  }
-  .end-btn:hover { transform: scale(1.06); }
-
-  /* MOBILE CONTROLS */
-  #mobileControls {
-    display: none;
-    position: absolute;
-    bottom: 10px;
-    left: 0; right: 0;
-    z-index: 15;
-    justify-content: space-between;
-    padding: 0 10px;
-    pointer-events: none;
-  }
-  #mobileControls.active { display: flex; }
-  .ctrl-btn {
-    width: 48px; height: 48px;
-    border-radius: 12px;
-    border: 2px solid rgba(255,255,255,.15);
-    background: rgba(255,255,255,.06);
-    color: #fff;
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    pointer-events: auto;
-    touch-action: none;
-  }
-  .ctrl-btn:active { background: rgba(247,147,26,.2); }
-  .ctrl-dpad {
-    display: grid;
-    grid-template-columns: 48px 48px 48px;
-    gap: 2px;
-  }
-  .ctrl-dpad .ctrl-btn { font-size: .9rem; }
-  .ctrl-dpad .center { visibility: hidden; }
-
-  @media (pointer: coarse) {
+    /* ─── ON-SCREEN CONTROLS (touch only) ─── */
+    #mobileControls {
+      display: none;
+      position: absolute; bottom: 10px; left: 0; right: 0;
+      justify-content: center; z-index: 15;
+      pointer-events: none;
+    }
     #mobileControls.active { display: flex; }
-  }
-  @media (max-width: 420px) {
-    .battle-ans-btn { font-size: 10px; padding: 8px 4px; min-height: 36px; }
-    .battle-q-text { font-size: 11px; }
-    .battle-sprite { font-size: 2rem; }
-    .battle-name { font-size: 7px; }
-  }
-</style>
+
+    .ctrl-dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 48px);
+      gap: 3px;
+    }
+    .ctrl-btn {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.06);
+      color: #fff; font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: auto; cursor: pointer;
+      touch-action: none;
+    }
+    .ctrl-btn:active { background: rgba(247,147,26,.2); }
+    .ctrl-dpad .center { visibility: hidden; }
+
+    @media (pointer: coarse) { #mobileControls.active { display: flex; } }
+    @media (max-width: 420px) {
+      #hud { font-size: 7px; padding: 6px 10px; }
+      .bar-wrap { width: 56px; height: 6px; }
+      .ctrl-btn { width: 40px; height: 40px; font-size: .9rem; }
+      .ctrl-dpad { grid-template-columns: repeat(3, 40px); }
+    }
+  </style>
 </head>
 <body>
 
 <div id="gameWrap">
   <canvas id="canvas" width="640" height="480"></canvas>
 
+  <!-- ─── HUD ─── -->
   <div id="hud">
     <div id="hudLeft">
-      <span id="hudLevel" style="color:#F7931A">Lv.1</span>
-      <div class="hp-bar-wrap"><div class="hp-bar-fill" id="hudHp" style="width:100%"></div></div>
+      <span id="hudLevel" style="color:#F7931A;">Lv.1</span>
+      <div class="bar-wrap"><div class="bar-fill hp" id="hudHp" style="width:100%"></div></div>
     </div>
     <div id="hudRight">
-      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="hudXp" style="width:0%"></div></div>
-      <span id="hudScore" style="color:rgba(255,255,255,.5);font-size:10px">0</span>
+      <div class="bar-wrap"><div class="bar-fill xp" id="hudXp" style="width:0%"></div></div>
+      <span id="hudScore" style="color:rgba(255,255,255,.4);">0000</span>
     </div>
   </div>
 
-  <div id="battleOverlay">
-    <div class="battle-scene">
-      <div class="battle-top">
-        <div class="battle-sprite" id="battleEnemySprite">\u{1F47E}</div>
-        <div class="battle-info">
-          <div class="battle-name" id="battleEnemyName">ENEMY</div>
-          <div class="battle-hp-wrap"><div class="battle-hp-fill enemy" id="battleEnemyHp" style="width:100%"></div></div>
-          <div class="battle-hp-text" id="battleEnemyHpText">HP: 10/10</div>
-        </div>
-      </div>
-      <div class="battle-q">
-        <div class="battle-q-text" id="battleQText">Loading...</div>
-        <div class="battle-answers" id="battleAnswers"></div>
-        <div class="battle-feedback" id="battleFeedback"></div>
-      </div>
-      <div class="battle-bottom">
-        <div class="battle-sprite">\u{1F9D1}\u200D\u{1F3EB}</div>
-        <div class="battle-info">
-          <div class="battle-name" id="battlePlayerName">HERO</div>
-          <div class="battle-hp-wrap"><div class="battle-hp-fill player" id="battlePlayerHp" style="width:100%"></div></div>
-          <div class="battle-hp-text" id="battlePlayerHpText">HP: 20/20</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="levelUpOverlay">
-    <div class="lu-box">
-      <div class="big-emoji" id="luEmoji">\u{1F476}</div>
-      <h2>LEVEL UP!</h2>
-      <div class="sub" id="luSub">Apprentice \u2192 Scout</div>
-      <div class="stats-up" id="luStats"></div>
-      <button class="lu-continue-btn" onclick="closeLevelUp()">Continue</button>
-    </div>
-  </div>
-
-  <div id="endOverlay">
-    <div class="end-box">
-      <span class="icon" id="endIcon">\u{1F480}</span>
-      <h2 id="endTitle">GAME OVER</h2>
-      <div class="score" id="endScore">Score: 0</div>
-      <p id="endMsg">Hero has fallen.</p>
-      <button class="end-btn" id="endBtn" onclick="restartGame()">Play Again</button>
-    </div>
-  </div>
-
-  <div id="mobileControls">
+  <!-- ─── MOBILE DPAD ─── -->
+  <div id="mobileControls" class="active">
     <div class="ctrl-dpad">
       <div></div>
-      <div class="ctrl-btn" data-dir="up">\u25B2</div>
+      <button class="ctrl-btn" data-dir="up">▲</button>
       <div></div>
-      <div class="ctrl-btn" data-dir="left">\u25C0</div>
+      <button class="ctrl-btn" data-dir="left">◀</button>
       <div class="ctrl-btn center"></div>
-      <div class="ctrl-btn" data-dir="right">\u25B6</div>
+      <button class="ctrl-btn" data-dir="right">▶</button>
       <div></div>
-      <div class="ctrl-btn" data-dir="down">\u25BC</div>
+      <button class="ctrl-btn" data-dir="down">▼</button>
       <div></div>
     </div>
   </div>
 </div>
 
 <script>
-  /* ========================================================================
-     BITCOIN QUEST RPG — Full Pixel RPG
-     ======================================================================== */
+  /* ═══════════════════════════════════════════════════════════════════════════
+     BITCOIN QUEST — Phase 1: Core Engine & Movement
+     
+     A modular pixel-RPG movement engine. Player moves on a grid-based
+     tile map. Walls block movement. Ready to expand into battles,
+     enemies, levels, and Bitcoin knowledge mechanics.
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  /* ─── MODULE 1: CONFIGURATION ───
+     All magic numbers live here. Tweak these to change the feel of
+     the game without touching render or logic code.                      */
+
+  const CONFIG = {
+    TILE_SIZE: 32,           // pixels per tile
+    COLS:      20,           // map width  in tiles  (20 × 32 = 640)
+    ROWS:      15,           // map height in tiles  (15 × 32 = 480)
+    MOVE_COOLDOWN: 150,      // ms between step
+    WALK_SPEED:   0.15,      // lerp speed for smooth movement
+    PLAYER_COLOR: '#F7931A', // Bitcoin orange
+    WALL_COLOR:   '#1a2a1a',
+    FLOOR_A:      '#3a7d3a',
+    FLOOR_B:      '#347534',
+  };
+
+  const W = CONFIG.COLS * CONFIG.TILE_SIZE;   // 640
+  const H = CONFIG.ROWS * CONFIG.TILE_SIZE;   // 480
+
+
+  /* ─── MODULE 2: MAP DATA ───
+     The world is a 2-D array where each cell is a tile type:
+       0 = grass / walkable
+       1 = wall / blocked
+     Maps are hand-authored so each level feels unique.                  */
+
+  const MAPS = [
+    // Level 1 — Training Grounds (20 cols × 15 rows)
+    {
+      name: 'Training Grounds',
+      tiles: [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1],
+        [1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      ],
+      // Tile at (col, row) the player starts on
+      playerStart: { x: 3, y: 3 },
+    },
+  ];
+
+
+  /* ─── MODULE 3: GAME STATE ───
+     Single source of truth for everything that changes during play.     */
+
+  const state = {
+    // ── Player ──
+    player: {
+      gridX: 1,          // tile column
+      gridY: 1,          // tile row
+      pixelX: 0,         // smoothed pixel position (set by init)
+      pixelY: 0,
+      hp: 20,
+      maxHp: 20,
+      level: 1,
+    },
+
+    // ── Progression ──
+    currentLevel: 0,     // index into MAPS[]
+    xp: 0,
+    score: 0,
+
+    // ── Movement ──
+    keys:     {},        // currently-held keys
+    moving:   false,     // true while a step animates
+    moveTimer: 0,        // ms elapsed in current step
+
+    // ── Misc ──
+    gameOver: false,
+  };
+
+
+  /* ─── MODULE 4: CANVAS SETUP ───                                  */
 
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
-  const TILE = 32;
-  const COLS = 20;
-  const ROWS = 15;
-  const W = COLS * TILE;
-  const H = ROWS * TILE;
 
-  /* ==================== LEVEL DATA ==================== */
-  const LEVELS = [
-    {
-      id:1, name:'Satoshi Village', theme:'grass',
-      floorColor:'#3a7d3a', wallColor:'#2d5a2d',
-      charEmoji:'\u{1F9D1}\u200D\u{1F3EB}', charTitle:'Apprentice',
-      enemyEmoji:'\u{1F47E}', enemyName:'Fiat Goblin',
-      qPool: [
-        { q:'What is Bitcoin?', a:['A digital currency','A stock','A credit card','A social network'], c:0 },
-        { q:'Who created Bitcoin?', a:['Elon Musk','Satoshi Nakamoto','Vitalik','Mark'], c:1 },
-        { q:'What year was Bitcoin created?', a:['2007','2008','2009','2010'], c:2 }
-      ],
-      map: [
-        'WWWWWWWWWWWWWWWWWWWW',
-        'W..................W',
-        'W..WWW..........WW.W',
-        'W..................W',
-        'W..........E.......W',
-        'W..WWW....WWW......W',
-        'W..................W',
-        'W.....E............W',
-        'W..............WW..W',
-        'W..................W',
-        'W......E...........W',
-        'W...P..........D...W',
-        'W..................W',
-        'W..................W',
-        'WWWWWWWWWWWWWWWWWWWW'
-      ]
-    },
-    {
-      id:2, name:'Mining Caves', theme:'cave',
-      floorColor:'#4a3a2a', wallColor:'#3a2a1a',
-      charEmoji:'\u{26CF}\uFE0F', charTitle:'Miner',
-      enemyEmoji:'\u{1F987}', enemyName:'FUD Bat',
-      qPool: [
-        { q:'What is mining?', a:['Solving blocks','Printing money','Trading','Staking'], c:0 },
-        { q:'What is a node?', a:['A validator','A wallet','An exchange','A coin'], c:0 },
-        { q:'What is the block reward?', a:['3.125 BTC','100 BTC','1 BTC','21M BTC'], c:0 },
-        { q:'What is difficulty?', a:['Mining target','Price level','Wallet key','Block size'], c:0 }
-      ],
-      map: [
-        'WWWWWWWWWWWWWWWWWWWW',
-        'W..WW..W.........W.W',
-        'W.........E.......WW',
-        'WW..W..WW.WWW.......W',
-        'W...............WW.W',
-        'W.WW..WW.........E..W',
-        'W.............WW...W',
-        'W..WW..WW..........W',
-        'W.......WWWW.......W',
-        'W..E...........WW..W',
-        'W.....WW..........W',
-        'WW..W..............W',
-        'W...P.........D....W',
-        'W.................WW',
-        'WWWWWWWWWWWWWWWWWWWW'
-      ]
-    },
-    {
-      id:3, name:'Lightning Forest', theme:'forest',
-      floorColor:'#2a4a3a', wallColor:'#1a3a2a',
-      charEmoji:'\u26A1', charTitle:'Spark Runner',
-      enemyEmoji:'\u{1F43A}', enemyName:'Shitcoin Wolf',
-      qPool: [
-        { q:'What is Lightning?', a:['Layer 2 payment','A coin','A wallet','A miner'], c:0 },
-        { q:'What is a channel?', a:['Payment route','A wallet','A block','A key'], c:0 },
-        { q:'What is LNURL?', a:['Payment protocol','A coin','A miner','A block'], c:0 }
-      ],
-      map: [
-        'WWWWWWWWWWWWWWWWWWWW',
-        'W...W......W...E...W',
-        'W...W..............W',
-        'W........W..WW.....W',
-        'W..E.............W.W',
-        'W.W..WW....WW......W',
-        'W..............W...W',
-        'W...W..............W',
-        'W......WWW...E.....W',
-        'W.............W....W',
-        'W.WW..W............W',
-        'W..........W...D...W',
-        'W...P..............W',
-        'W...........WW.....W',
-        'WWWWWWWWWWWWWWWWWWWW'
-      ]
-    },
-    {
-      id:4, name:'HODL Mountain', theme:'mountain',
-      floorColor:'#5a5a5a', wallColor:'#4a4a4a',
-      charEmoji:'\u{1FA99}', charTitle:'Stacker',
-      enemyEmoji:'\u{1F9DF}', enemyName:'Bear Whiner',
-      qPool: [
-        { q:'What is HODL?', a:['Hold strategy','Sell strategy','Mining','Trading'], c:0 },
-        { q:'What is a dip?', a:['Price drop','Price peak','A coin','A wallet'], c:0 },
-        { q:'Best time to buy?', a:['When red','When green','Never','Always'], c:0 },
-        { q:'What is FOMO?', a:['Fear Of Missing Out','Buy low','Sell high','HODL'], c:0 }
-      ],
-      map: [
-        'WWWWWWWWWWWWWWWWWWWW',
-        'W...W...W......E...W',
-        'W...........W......W',
-        'WWW...W.........W..W',
-        'W..........E....WW.W',
-        'W.W...WWW.........W',
-        'W...............W..W',
-        'W..W...........W...W',
-        'W.............WW...W',
-        'W....WWW...........W',
-        'W..W......WW.....D.W',
-        'W.........E.........W',
-        'W....W.........W...W',
-        'W..P................W',
-        'WWWWWWWWWWWWWWWWWWWW'
-      ]
-    },
-    {
-      id:5, name:'Mempool Swamp', theme:'swamp',
-      floorColor:'#3a4a2a', wallColor:'#2a3a1a',
-      charEmoji:'\u{1F30A}', charTitle:'Queue Master',
-      enemyEmoji:'\u{1F47B}', enemyName:'Spam Zombie',
-      qPool: [
-        { q:'What is the mempool?', a:['Tx waiting room','A wallet','A coin','A block'], c:0 },
-        { q:'What affects fees?', a:['Mempool congestion','Block size','Hash rate','Difficulty'], c:0 },
-        { q:'What is RBF?', a:['Replace-By-Fee','Race By Force','Run Block Fast','Real Block Fee'], c:0 }
-      ],
-      map: [
-        'WWWWWWWWWWWWWWWWWWWW',
-        'W...........W......W',
-        'W..WW...E........W.W',
-        'W..............W...W',
-        'W...W....WW........W',
-        'W...........WW.....W',
-        'W..WW..WW.........W',
-        'W...............E..W',
-        'W.....WWW.........W',
-        'W.W............WW..W',
-        'W...........E......W',
-        'W.WW.....WW........W',
-        'W.....P.....D......W',
-        'W.................WW',
-        'WWWWWWWWWWWWWWWWWWWW'
-      ]
-    },
-    {
-      id:6, name:'UTXO Dungeon', theme:'dungeon',
-      floorColor:'#3a2a2a', wallColor:'#2a1a1a',
-      charEmoji:'\u{1F6E1}\uFE0F', charTitle:'Coin Controller',
-      enemyEmoji:'\u{1F480}', enemyName:'Dust Phantom',
-      qPool: [
-        { q:'What is a UTXO?', a:['Unspent output','A coin','A block','A key'], c:0 },
-        { q:'What is coin control?', a:['Choose UTXOs','Control price','Mine coins','Lock wallet'], c:0 },
-        { q:'What is dust?', a:['Tiny UTXOs','Gold dust','Mining dust','Lost coins'], c:0 }
-      ],
-      map: [
-        'WWWWWWWWWWWWWWWWWWWW',
-        'W..W.....W........W',
-        'W......E........W..W',
-        'W..WW....WWW.......W',
-        'W............W...E.W',
-        'W.WW..W..........W',
-        'W..........WW.....W',
-        'W...W..WW.........W',
-        'W.........W...WW..W',
-        'W..W..E..........W',
-        'W..........WW..D..W',
-        'W.W..WW...........W',
-        'W......P..........W',
-        'W..W..............W',
-        'WWWWWWWWWWWWWWWWWWWW'
-      ]
-    },
-    {
-      id:7, name:'Privacy Temple', theme:'temple',
-      floorColor:'#3a2a4a', wallColor:'#2a1a3a',
-      charEmoji:'\u{1F52E}', charTitle:'Chain Seer',
-      enemyEmoji:'\u{1F9D9}', enemyName:'KYC Inquisitor',
-      qPool: [
-        { q:'What is self-custody?', a:['Hold own keys','Bank storage','Exchange','Paper'], c:0 },
-        { q:'What is multi-sig?', a:['M-of-N keys','One key','No key','Shared key'], c:0 },
-        { q:'What is coinjoin?', a:['Privacy tx','A coin','A wallet','Mining'], c:0 }
-      ],
-      map: [
-        'WWWWWWWWWWWWWWWWWWWW',
-        'W..W.....W.......E.W',
-        'W..........W.......W',
-        'WW..W...WW...W....W',
-        'W.......E..........W',
-        'W.......W...WW....W',
-        'W..W........W.....W',
-        'W...........W..E..W',
-        'W.W..WW...........W',
-        'W..........W......W',
-        'W......WW.......D.W',
-        'W..W..............W',
-        'W.....P...........W',
-        'W........W...W....W',
-        'WWWWWWWWWWWWWWWWWWWW'
-      ]
-    },
-    {
-      id:8, name:'Taproot Castle', theme:'castle',
-      floorColor:'#4a3a3a', wallColor:'#3a2a2a',
-      charEmoji:'\u{1F5E1}\uFE0F', charTitle:'Taproot Knight',
-      enemyEmoji:'\u{1F9DF}\u200D\u2642\uFE0F', enemyName:'Soft Fork Phantom',
-      qPool: [
-        { q:'What is Taproot?', a:['Schnorr + MAST','New coin','Faster mining','More supply'], c:0 },
-        { q:'What is a soft fork?', a:['Backward upgrade','Chain split','New coin','Hard change'], c:0 },
-        { q:'What is BIP?', a:['Improvement proposal','Bitcoin price','Block size','Mining plan'], c:0 }
-      ],
-      map: [
-        'WWWWWWWWWWWWWWWWWWWW',
-        'W..W...E...........W',
-        'W..............W...W',
-        'W.WW...WW....W....W',
-        'W...........W...E..W',
-        'W......W..........W',
-        'W..WW.............W',
-        'W.......WW..W.....W',
-        'W...W......W......W',
-        'W.............W...W',
-        'W.WW..E...........W',
-        'W..........W..D...W',
-        'W....P.............W',
-        'W...........WW....W',
-        'WWWWWWWWWWWWWWWWWWWW'
-      ]
-    },
-    {
-      id:9, name:'Cycle Summit', theme:'summit',
-      floorColor:'#5a4a3a', wallColor:'#4a3a2a',
-      charEmoji:'\u{1F432}', charTitle:'Dragon Holder',
-      enemyEmoji:'\u{1F409}', enemyName:'Bear Market Drake',
-      qPool: [
-        { q:'What is a halving cycle?', a:['4-year event','1-year','Never','Monthly'], c:0 },
-        { q:'What is MVRV?', a:['Market/Realized Value','Mining Value','Max Return','Minimum Vol'], c:0 },
-        { q:'What is stock-to-flow?', a:['Scarcity model','Flow model','Trading','Mining'], c:0 }
-      ],
-      map: [
-        'WWWWWWWWWWWWWWWWWWWW',
-        'W..W.....E.........W',
-        'W............W.....W',
-        'W...WW..W.........W',
-        'W.............W.E..W',
-        'W..W....WW........W',
-        'W.............W....W',
-        'W...W..W..........W',
-        'W......WWW...E....W',
-        'W..W..............W',
-        'W............W....W',
-        'W..WW.....W..D....W',
-        'W......P..........W',
-        'W...........WW....W',
-        'WWWWWWWWWWWWWWWWWWWW'
-      ]
-    },
-    {
-      id:10, name:'Blockchain Throne', theme:'throne',
-      floorColor:'#2a1a0a', wallColor:'#1a0a00',
-      charEmoji:'\u{1F3C6}', charTitle:'Bitcoin GOD',
-      enemyEmoji:'\u{1F451}', enemyName:'The Fiat Emperor',
-      qPool: [
-        { q:'What problem did Bitcoin solve?', a:['Byzantine Generals','Climate change','Hunger','Poverty'], c:0 },
-        { q:'What is a full node?', a:['Validates all rules','Light client','Mining pool','Wallet'], c:0 },
-        { q:'Why 21M?', a:['Fixed supply','Random','Vote','Mining limit'], c:0 },
-        { q:'What powers Bitcoin?', a:['Proof of Work','Proof of Stake','Trust','Banks'], c:0 },
-        { q:'Not your keys...?', a:['Not your coins','Not your bank','Not your money','Not your life'], c:0 }
-      ],
-      map: [
-        'WWWWWWWWWWWWWWWWWWWW',
-        'W..................W',
-        'W..WW........WW...W',
-        'W..................W',
-        'W....E.............W',
-        'W........WW........W',
-        'W..................W',
-        'W.....WW...........W',
-        'W..............E...W',
-        'W.......WW........W',
-        'W..................W',
-        'W......E..........D',
-        'W...P..............W',
-        'W..................W',
-        'WWWWWWWWWWWWWWWWWWWW'
-      ]
-    }
-  ];
+  // Ensure canvas dimensions are integers
+  canvas.width  = W;
+  canvas.height = H;
 
-  /* ==================== GAME STATE ==================== */
-  let state = {
-    level: 0,
-    player: { x: 1, y: 1, hp: 20, maxHp: 20 },
-    enemies: [],
-    xp: 0,
-    xpNeeded: 30,
-    score: 0,
-    keys: {},
-    enemiesDefeated: 0,
-    inBattle: false,
-    moving: false,
-    moveTimer: 0,
-    frame: 0,
-    frameTimer: 0,
-    gameOver: false
+
+  /* ─── MODULE 5: HUD REFS ───                                      */
+
+  const hud = {
+    level: document.getElementById('hudLevel'),
+    hp:    document.getElementById('hudHp'),
+    xp:    document.getElementById('hudXp'),
+    score: document.getElementById('hudScore'),
   };
 
-  let currentMap = [];
-  let battleState = null;
 
-  /* ==================== MAP PARSING ==================== */
-  function parseMap(levelData) {
-    const map = [];
-    const enemies = [];
-    let playerStart = { x: 1, y: 1 };
-    let doorPos = { x: 18, y: 13 };
+  /* ─── MODULE 6: HELPERS ───                                       */
 
-    for (let r = 0; r < levelData.map.length; r++) {
-      const row = [];
-      for (let c = 0; c < levelData.map[r].length; c++) {
-        const ch = levelData.map[r][c];
-        switch(ch) {
-          case 'W': row.push(1); break;
-          case 'P': row.push(0); playerStart = { x: c, y: r }; break;
-          case 'E': row.push(0); enemies.push({ x: c, y: r, hp: 10 + state.level * 3, maxHp: 10 + state.level * 3, patrolDir: 1, patrolRange: 3, patrolCenter: c, alive: true }); break;
-          case 'D': row.push(0); doorPos = { x: c, y: r }; break;
-          default: row.push(0);
-        }
-      }
-      map.push(row);
-    }
-
-    return { map, enemies, playerStart, doorPos };
+  /** Lighten/darken a hex colour by `amt` (positive = lighter). */
+  function shiftColor(hex, amt) {
+    const r = Math.max(0, Math.min(255, parseInt(hex.slice(1,3), 16) + amt));
+    const g = Math.max(0, Math.min(255, parseInt(hex.slice(3,5), 16) + amt));
+    const b = Math.max(0, Math.min(255, parseInt(hex.slice(5,7), 16) + amt));
+    return `rgb(${r},${g},${b})`;
   }
 
-  /* ==================== PLAYER SPRITE ==================== */
-  function drawPlayer(ctx, x, y, lv, frame, dir) {
-    const colors = ['#4A90D9','#4A90D9','#2ECC71','#F7931A','#00D4AA','#95A5A6','#8B5CF6','#E74C3C','#2ECC71','#FFD700'];
-    const color = colors[Math.min(lv, colors.length - 1)];
+  /** Clamp a value between min and max. */
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+  /** Get the tile value at (col, row) for the current map. */
+  function getTile(col, row) {
+    const map = MAPS[state.currentLevel];
+    if (row < 0 || row >= map.tiles.length) return 1;
+    if (col < 0 || col >= map.tiles[0].length) return 1;
+    return map.tiles[row][col];
+  }
+
+
+  /* ─── MODULE 7: MAP / LEVEL LOADER ───                            */
+
+  /** Teleport the player to the start position for the given level. */
+  function loadLevel(levelIndex) {
+    const map = MAPS[levelIndex];
+    state.currentLevel = levelIndex;
+    state.player.gridX  = map.playerStart.x;
+    state.player.gridY  = map.playerStart.y;
+    state.player.pixelX = map.playerStart.x * CONFIG.TILE_SIZE;
+    state.player.pixelY = map.playerStart.y * CONFIG.TILE_SIZE;
+    state.moving = false;
+  }
+
+
+  /* ─── MODULE 8: MOVEMENT SYSTEM ───                               */
+
+  /**
+   * Attempt to move the player by (dx, dy) tiles.
+   * Returns true if the move is valid and started, false otherwise.
+   */
+  function tryMove(dx, dy) {
+    if (state.moving || state.gameOver) return false;
+
+    const nx = state.player.gridX + dx;
+    const ny = state.player.gridY + dy;
+
+    // Bounds check (walls = 1 are blocked)
+    if (getTile(nx, ny) !== 0) return false;
+
+    // Commit the step
+    state.player.gridX = nx;
+    state.player.gridY = ny;
+    state.moving = true;
+    state.moveTimer = 0;
+    return true;
+  }
+
+
+  /* ─── MODULE 9: INPUT HANDLING ───                                */
+
+  /* Keyboard */
+  document.addEventListener('keydown', (e) => {
+    state.keys[e.key] = true;
+    const key = e.key;
+    if (key === 'ArrowUp'    || key === 'w' || key === 'W') tryMove(0, -1);
+    if (key === 'ArrowDown'  || key === 's' || key === 'S') tryMove(0,  1);
+    if (key === 'ArrowLeft'  || key === 'a' || key === 'A') tryMove(-1, 0);
+    if (key === 'ArrowRight' || key === 'd' || key === 'D') tryMove(1,  0);
+    // Block scrolling
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(key)) e.preventDefault();
+  });
+  document.addEventListener('keyup',   (e) => { state.keys[e.key] = false; });
+
+  /* Mobile / touch D-pad */
+  document.querySelectorAll('[data-dir]').forEach((btn) => {
+    const handler = (e) => {
+      e.preventDefault();
+      const dir = btn.dataset.dir;
+      if (dir === 'up')    tryMove(0, -1);
+      if (dir === 'down')  tryMove(0,  1);
+      if (dir === 'left')  tryMove(-1, 0);
+      if (dir === 'right') tryMove(1,  0);
+    };
+    btn.addEventListener('touchstart', handler);
+    btn.addEventListener('mousedown',  handler);
+  });
+
+
+  /* ─── MODULE 10: RENDERER ───                                     */
+
+  /**
+   * Draw one frame.  Called every animation frame.
+   * Separate sub-functions keep the logic easy to modify.
+   */
+
+  function render() {
+    ctx.clearRect(0, 0, W, H);
+    renderMap();
+    renderPlayer();
+    updateHUD();
+  }
+
+  /* ── 10a. Tile map ── */
+  function renderMap() {
+    const map = MAPS[state.currentLevel];
+
+    for (let r = 0; r < CONFIG.ROWS; r++) {
+      for (let c = 0; c < CONFIG.COLS; c++) {
+        const x = c * CONFIG.TILE_SIZE;
+        const y = r * CONFIG.TILE_SIZE;
+        const tile = map.tiles[r][c];
+
+        if (tile === 1) {
+          // Wall
+          ctx.fillStyle = CONFIG.WALL_COLOR;
+          ctx.fillRect(x, y, CONFIG.TILE_SIZE, CONFIG.TILE_SIZE);
+          // Subtle top highlight for depth
+          ctx.fillStyle = 'rgba(255,255,255,.04)';
+          ctx.fillRect(x, y, CONFIG.TILE_SIZE, 2);
+        } else {
+          // Grass — checkerboard for visual clarity
+          ctx.fillStyle = (c + r) % 2 === 0 ? CONFIG.FLOOR_A : CONFIG.FLOOR_B;
+          ctx.fillRect(x, y, CONFIG.TILE_SIZE, CONFIG.TILE_SIZE);
+          // Tiny grass detail
+          if ((c * 7 + r * 13) % 5 === 0) {
+            ctx.fillStyle = 'rgba(255,255,255,.03)';
+            ctx.fillRect(x + 8, y + 20, 2, 2);
+            ctx.fillRect(x + 22, y + 10, 2, 2);
+          }
+        }
+      }
+    }
+  }
+
+  /* ── 10b. Player sprite ── */
+  function renderPlayer() {
+    const p = state.player;
 
     // Shadow
-    ctx.fillStyle = 'rgba(0,0,0,.3)';
+    ctx.fillStyle = 'rgba(0,0,0,.25)';
     ctx.beginPath();
-    ctx.ellipse(x + 16, y + 28, 10, 4, 0, 0, Math.PI * 2);
+    ctx.ellipse(p.pixelX + 16, p.pixelY + 28, 9, 3, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Body
-    ctx.fillStyle = color;
-    ctx.fillRect(x + 10, y + 14, 12, 10);
+    // Body (square hero for now)
+    ctx.fillStyle = CONFIG.PLAYER_COLOR;
+    ctx.fillRect(p.pixelX + 10, p.pixelY + 14, 12, 10);
 
     // Body highlight
-    ctx.fillStyle = 'rgba(255,255,255,.15)';
-    ctx.fillRect(x + 12, y + 15, 4, 8);
+    ctx.fillStyle = 'rgba(255,255,255,.12)';
+    ctx.fillRect(p.pixelX + 12, p.pixelY + 16, 4, 6);
 
     // Head
     ctx.fillStyle = '#F5C89A';
     ctx.beginPath();
-    ctx.arc(x + 16, y + 9, 8, 0, Math.PI * 2);
+    ctx.arc(p.pixelX + 16, p.pixelY + 9, 7, 0, Math.PI * 2);
     ctx.fill();
 
     // Eyes
-    ctx.fillStyle = '#333';
-    ctx.fillRect(x + 12, y + 7, 2, 2);
-    ctx.fillRect(x + 18, y + 7, 2, 2);
+    ctx.fillStyle = '#222';
+    ctx.fillRect(p.pixelX + 12, p.pixelY + 7, 2, 2);
+    ctx.fillRect(p.pixelX + 18, p.pixelY + 7, 2, 2);
 
     // Legs
     ctx.fillStyle = '#2C3E50';
-    const legOff = frame === 0 ? 0 : 2;
-    ctx.fillRect(x + 10, y + 24, 5, 6);
-    ctx.fillRect(x + 17, y + 24, 5, 6);
+    ctx.fillRect(p.pixelX + 10, p.pixelY + 24, 5, 6);
+    ctx.fillRect(p.pixelX + 17, p.pixelY + 24, 5, 6);
 
-    // Arms
-    ctx.fillStyle = '#F5C89A';
-    ctx.fillRect(x + 6, y + 15, 4, 3);
-    ctx.fillRect(x + 22, y + 15, 4, 3);
-
-    // --- Level-specific upgrades ---
-    // L2+: Hat
-    if (lv >= 1) {
-      ctx.fillStyle = color;
-      ctx.fillRect(x + 11, y + 1, 10, 3);
-      ctx.fillRect(x + 13, y - 1, 6, 2);
-    }
-    // L3+: Mining hat light
-    if (lv >= 2) {
-      ctx.fillStyle = '#FFD700';
-      ctx.beginPath();
-      ctx.arc(x + 16, y + 1, 2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    // L4+: Gold trim
-    if (lv >= 3) {
-      ctx.fillStyle = '#FFD700';
-      ctx.fillRect(x + 8, y + 14, 2, 10);
-      ctx.fillRect(x + 22, y + 14, 2, 10);
-    }
-    // L5+: Cape
-    if (lv >= 4) {
-      ctx.fillStyle = color;
-      ctx.fillRect(x + 7, y + 14, 3, 12);
-      ctx.fillRect(x + 22, y + 14, 3, 12);
-    }
-    // L6+: Shield
-    if (lv >= 5) {
-      ctx.fillStyle = '#BDC3C7';
-      ctx.fillRect(x + 4, y + 13, 5, 8);
-      ctx.fillStyle = '#F7931A';
-      ctx.fillRect(x + 5, y + 15, 3, 4);
-    }
-    // L7+: Crystal
-    if (lv >= 6) {
-      ctx.fillStyle = '#8B5CF6';
-      ctx.fillRect(x + 24, y + 13, 4, 6);
-      ctx.fillStyle = '#A78BFA';
-      ctx.fillRect(x + 25, y + 14, 2, 4);
-    }
-    // L8+: Sword
-    if (lv >= 7) {
-      ctx.fillStyle = '#BDC3C7';
-      ctx.fillRect(x + 27, y + 12, 2, 12);
-      ctx.fillStyle = '#FFD700';
-      ctx.fillRect(x + 26, y + 10, 4, 3);
-      ctx.fillRect(x + 25, y + 13, 6, 1);
-    }
-    // L9+: Dragon wings
-    if (lv >= 8) {
-      ctx.fillStyle = '#2ECC71';
-      ctx.fillRect(x + 2, y + 12, 4, 6);
-      ctx.fillRect(x + 26, y + 12, 4, 6);
-    }
-    // L10: Halo + crown
-    if (lv >= 9) {
-      ctx.fillStyle = '#FFD700';
-      ctx.beginPath();
-      ctx.arc(x + 16, y + 1, 6, Math.PI, 0);
-      ctx.stroke();
-      ctx.fillRect(x + 12, y - 3, 8, 4);
-      ctx.fillRect(x + 14, y - 5, 4, 2);
-    }
+    // Level badge (tiny ₿ on hat)
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#FFD700';
+    ctx.fillText('\u20BF', p.pixelX + 16, p.pixelY + 4);
   }
 
-  /* ==================== ENEMY SPRITES ==================== */
-  function drawEnemySprite(ctx, x, y, type, frame) {
-    // Draw a simple enemy based on level type
-    const colors = ['#FF4757','#8B4513','#2ECC71','#95A5A6','#8B5CF6','#E74C3C','#9B59B6','#34495E','#E67E22','#FFD700'];
-    const color = colors[Math.min(type, colors.length - 1)];
-
-    ctx.fillStyle = 'rgba(0,0,0,.3)';
-    ctx.beginPath();
-    ctx.ellipse(x + 16, y + 28, 10, 4, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Body
-    ctx.fillStyle = color;
-    ctx.fillRect(x + 8, y + 14, 16, 12);
-
-    // Head
-    ctx.fillStyle = color;
-    ctx.fillRect(x + 10, y + 4, 12, 12);
-
-    // Eyes (angry)
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(x + 12, y + 7, 3, 3);
-    ctx.fillRect(x + 17, y + 7, 3, 3);
-    ctx.fillStyle = '#333';
-    ctx.fillRect(x + 12, y + 7, 2, 2);
-    ctx.fillRect(x + 17, y + 7, 2, 2);
-
-    // Mouth
-    ctx.fillStyle = '#333';
-    ctx.fillRect(x + 13, y + 13, 6, 2);
+  /* ── 10c. HUD ── */
+  function updateHUD() {
+    const p = state.player;
+    hud.level.textContent = 'Lv.' + p.level;
+    hud.hp.style.width    = (p.hp / p.maxHp * 100) + '%';
+    hud.xp.style.width    = clamp((state.xp / 100) * 100, 0, 100) + '%';
+    hud.score.textContent = String(state.score).padStart(4, '0');
   }
 
-  /* ==================== RENDER ==================== */
-  function render() {
-    ctx.clearRect(0, 0, W, H);
 
-    const ld = LEVELS[state.level];
-    ctx.fillStyle = ld.floorColor;
-    ctx.fillRect(0, 0, W, H);
+  /* ─── MODULE 11: GAME LOOP ───                                    */
 
-    // Draw map
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        const tile = currentMap[r][c];
-        const x = c * TILE;
-        const y = r * TILE;
-
-        if (tile === 1) {
-          ctx.fillStyle = ld.wallColor;
-          ctx.fillRect(x, y, TILE, TILE);
-          ctx.fillStyle = 'rgba(255,255,255,.03)';
-          ctx.fillRect(x, y, TILE, 1);
-        } else {
-          // Floor tile
-          ctx.fillStyle = (c + r) % 2 === 0 ? ld.floorColor : darkenColor(ld.floorColor, 5);
-          ctx.fillRect(x, y, TILE, TILE);
-        }
-
-        // Door
-        if (ld.map[r][c] === 'D') {
-          const allDefeated = state.enemies.every(e => !e.alive);
-          if (allDefeated) {
-            ctx.fillStyle = 'rgba(247,147,26,.3)';
-            ctx.fillRect(x, y, TILE, TILE);
-            ctx.fillStyle = '#FFD700';
-            ctx.font = '18px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('\u{1FA99}', x + 16, y + 24);
-          } else {
-            ctx.fillStyle = 'rgba(0,0,0,.2)';
-            ctx.fillRect(x, y, TILE, TILE);
-            ctx.fillStyle = '#555';
-            ctx.font = '16px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('\u{1F512}', x + 16, y + 24);
-          }
-        }
-      }
-    }
-
-    // Draw enemies
-    state.enemies.forEach(enemy => {
-      if (!enemy.alive) return;
-      const x = enemy.x * TILE;
-      const y = enemy.y * TILE;
-      drawEnemySprite(ctx, x, y, state.level, state.frame);
-    });
-
-    // Draw player
-    const px = state.player.x * TILE;
-    const py = state.player.y * TILE;
-    drawPlayer(ctx, px, py, state.level, state.frame, 0);
-
-    // HUD update
-    const lv = state.level + 1;
-    document.getElementById('hudLevel').textContent = 'Lv.' + lv;
-    document.getElementById('hudHp').style.width = (state.player.hp / state.player.maxHp * 100) + '%';
-    document.getElementById('hudXp').style.width = (state.xp / state.xpNeeded * 100) + '%';
-    document.getElementById('hudScore').textContent = state.score;
-  }
-
-  function darkenColor(hex, amt) {
-    let r = parseInt(hex.slice(1,3), 16);
-    let g = parseInt(hex.slice(3,5), 16);
-    let b = parseInt(hex.slice(5,7), 16);
-    r = Math.max(0, r - amt);
-    g = Math.max(0, g - amt);
-    b = Math.max(0, b - amt);
-    return '#' + r.toString(16).padStart(2,'0') + g.toString(16).padStart(2,'0') + b.toString(16).padStart(2,'0');
-  }
-
-  /* ==================== MOVEMENT ==================== */
-  function tryMove(dx, dy) {
-    if (state.inBattle || state.moving || state.gameOver) return;
-
-    const nx = state.player.x + dx;
-    const ny = state.player.y + dy;
-
-    // Bounds check
-    if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) return;
-    // Wall check
-    if (currentMap[ny][nx] === 1) return;
-
-    // Door check
-    const ld = LEVELS[state.level];
-    if (ld.map[ny][nx] === 'D') {
-      const allDefeated = state.enemies.every(e => !e.alive);
-      if (allDefeated) {
-        nextLevel();
-        return;
-      }
-    }
-
-    state.moving = true;
-    state.player.x = nx;
-    state.player.y = ny;
-
-    // Check enemy collision
-    state.enemies.forEach(enemy => {
-      if (!enemy.alive) return;
-      if (enemy.x === nx && enemy.y === ny) {
-        startBattle(enemy);
-      }
-    });
-  }
-
-  /* ==================== ENEMY PATROL ==================== */
-  function updateEnemies() {
-    state.enemies.forEach(enemy => {
-      if (!enemy.alive) return;
-      enemy.x += enemy.patrolDir * 0.05;
-      if (enemy.x > enemy.patrolCenter + enemy.patrolRange || enemy.x < enemy.patrolCenter - enemy.patrolRange) {
-        enemy.patrolDir *= -1;
-      }
-      enemy.x = Math.round(enemy.x * 100) / 100;
-    });
-  }
-
-  /* ==================== BATTLE SYSTEM ==================== */
-  const BATTLE_QUESTIONS = [];
-
-  function startBattle(enemy) {
-    state.inBattle = true;
-    const ld = LEVELS[state.level];
-    const qPool = ld.qPool;
-    const qi = Math.floor(Math.random() * qPool.length);
-    const q = qPool[qi];
-
-    battleState = {
-      enemyHp: enemy.hp,
-      enemyMaxHp: enemy.maxHp,
-      playerHp: state.player.hp,
-      playerMaxHp: state.player.maxHp,
-      answered: false,
-      enemyRef: enemy,
-      qIndex: qi
-    };
-
-    const overlay = document.getElementById('battleOverlay');
-    overlay.classList.add('active');
-
-    document.getElementById('battleEnemySprite').textContent = ld.enemyEmoji;
-    document.getElementById('battleEnemyName').textContent = ld.enemyName;
-    document.getElementById('battlePlayerName').textContent = ld.charTitle;
-
-    updateBattleUI();
-    showBattleQuestion(q);
-  }
-
-  function updateBattleUI() {
-    if (!battleState) return;
-    document.getElementById('battleEnemyHp').style.width = (battleState.enemyHp / battleState.enemyMaxHp * 100) + '%';
-    document.getElementById('battleEnemyHpText').textContent = 'HP: ' + battleState.enemyHp + '/' + battleState.enemyMaxHp;
-    document.getElementById('battlePlayerHp').style.width = (battleState.playerHp / battleState.playerMaxHp * 100) + '%';
-    document.getElementById('battlePlayerHpText').textContent = 'HP: ' + battleState.playerHp + '/' + battleState.playerMaxHp;
-  }
-
-  function showBattleQuestion(q) {
-    document.getElementById('battleQText').textContent = q.q;
-    const container = document.getElementById('battleAnswers');
-    container.innerHTML = '';
-    const labels = ['A','B','C'];
-    q.a.forEach((opt, i) => {
-      const btn = document.createElement('button');
-      btn.className = 'battle-ans-btn';
-      btn.textContent = labels[i] + ') ' + opt;
-      btn.onclick = () => handleBattleAnswer(i, q);
-      container.appendChild(btn);
-    });
-    document.getElementById('battleFeedback').textContent = '';
-    document.getElementById('battleFeedback').className = 'battle-feedback';
-    battleState.answered = false;
-  }
-
-  function handleBattleAnswer(idx, q) {
-    if (battleState.answered) return;
-    battleState.answered = true;
-
-    const btns = document.querySelectorAll('.battle-ans-btn');
-    btns.forEach(b => b.disabled = true);
-
-    const fb = document.getElementById('battleFeedback');
-
-    if (idx === q.c) {
-      btns[idx].classList.add('correct');
-      // Deal damage
-      const dmg = 3 + Math.floor(state.level * 1.5);
-      battleState.enemyHp = Math.max(0, battleState.enemyHp - dmg);
-      fb.textContent = '\u2694\uFE0F Hit! ' + dmg + ' damage!';
-      fb.className = 'battle-feedback hit';
-
-      // Float damage
-      showDmgFloat(dmg, true);
-
-      updateBattleUI();
-
-      if (battleState.enemyHp <= 0) {
-        // Enemy defeated
-        setTimeout(() => {
-          fb.textContent = '\u2714\uFE0F ' + LEVELS[state.level].enemyName + ' defeated!';
-          fb.className = 'battle-feedback info';
-
-          // Rewards
-          const xpGain = 15 + state.level * 5;
-          const scoreGain = 25 + state.level * 10;
-          state.xp += xpGain;
-          state.score += scoreGain;
-          battleState.enemyRef.alive = false;
-          state.enemiesDefeated++;
-
-          if (state.xp >= state.xpNeeded) {
-            setTimeout(() => {
-              closeBattle();
-              showLevelUp();
-            }, 800);
-          } else {
-            setTimeout(closeBattle, 800);
-          }
-        }, 600);
-      } else {
-        // Enemy turn
-        setTimeout(() => {
-          const eDmg = Math.max(1, 2 + Math.floor(state.level * 0.5));
-          battleState.playerHp = Math.max(0, battleState.playerHp - eDmg);
-          state.player.hp = battleState.playerHp;
-          fb.textContent = '\u{1F5E1}\uFE0F Enemy hits for ' + eDmg + '!';
-          fb.className = 'battle-feedback miss';
-          showDmgFloat(eDmg, false);
-          updateBattleUI();
-
-          if (battleState.playerHp <= 0) {
-            setTimeout(() => {
-              closeBattle();
-              gameOver();
-            }, 800);
-          } else {
-            setTimeout(() => {
-              // Next question
-              const ld = LEVELS[state.level];
-              const qPool = ld.qPool;
-              const qi = Math.floor(Math.random() * qPool.length);
-              showBattleQuestion(qPool[qi]);
-            }, 1000);
-          }
-        }, 1000);
-      }
-    } else {
-      btns[idx].classList.add('wrong');
-      // Show correct answer
-      btns[q.c].classList.add('correct');
-
-      const eDmg = Math.max(1, 2 + Math.floor(state.level * 0.5));
-      battleState.playerHp = Math.max(0, battleState.playerHp - eDmg);
-      state.player.hp = battleState.playerHp;
-
-      fb.textContent = '\u274C Wrong! -' + eDmg + ' HP';
-      fb.className = 'battle-feedback miss';
-      showDmgFloat(eDmg, false);
-      updateBattleUI();
-
-      if (battleState.playerHp <= 0) {
-        setTimeout(() => {
-          closeBattle();
-          gameOver();
-        }, 800);
-      } else {
-        setTimeout(() => {
-          // Continue battle - next question
-          const ld = LEVELS[state.level];
-          const qPool = ld.qPool;
-          const qi = Math.floor(Math.random() * qPool.length);
-          showBattleQuestion(qPool[qi]);
-        }, 1000);
-      }
-    }
-  }
-
-  function showDmgFloat(dmg, isPlayer) {
-    const wrap = document.getElementById('gameWrap');
-    const el = document.createElement('div');
-    el.className = 'dmg-float';
-    el.textContent = '-' + dmg;
-    el.style.color = isPlayer ? '#00D4AA' : '#FF4757';
-    el.style.left = (isPlayer ? 120 : 400) + 'px';
-    el.style.top = (isPlayer ? 280 : 100) + 'px';
-    el.style.fontSize = (14 + Math.min(dmg, 20)) + 'px';
-    wrap.appendChild(el);
-    setTimeout(() => el.remove(), 1200);
-  }
-
-  function closeBattle() {
-    document.getElementById('battleOverlay').classList.remove('active');
-    state.inBattle = false;
-    render();
-  }
-
-  /* ==================== LEVEL UP ==================== */
-  function showLevelUp() {
-    state.xp = 0;
-    state.xpNeeded = Math.round(state.xpNeeded * 1.25);
-    const newLv = state.level + 1;
-    const ld = LEVELS[Math.min(newLv, LEVELS.length - 1)];
-
-    // Show level up overlay
-    document.getElementById('luEmoji').textContent = ld.charEmoji;
-    const prevName = LEVELS[state.level].charTitle;
-    document.getElementById('luSub').textContent = prevName + ' \u2192 ' + ld.charTitle;
-
-    document.getElementById('luStats').innerHTML =
-      '<div class="stat-up">HP <span class="num">' + state.player.maxHp + '</span></div>' +
-      '<div class="stat-up">Lv <span class="num">' + (newLv + 1) + '</span></div>';
-
-    document.getElementById('levelUpOverlay').classList.add('active');
-    spawnConfetti();
-  }
-
-  function closeLevelUp() {
-    document.getElementById('levelUpOverlay').classList.remove('active');
-  }
-
-  /* ==================== NEXT LEVEL ==================== */
-  function nextLevel() {
-    if (state.level >= LEVELS.length - 1) {
-      victory();
-      return;
-    }
-
-    state.level++;
-    const ld = LEVELS[state.level];
-
-    // Increase player stats
-    state.player.maxHp += 5 + state.level;
-    state.player.hp = state.player.maxHp;
-
-    const parsed = parseMap(ld);
-    currentMap = parsed.map;
-    state.enemies = parsed.enemies;
-    state.player.x = parsed.playerStart.x;
-    state.player.y = parsed.playerStart.y;
-    state.enemiesDefeated = 0;
-    state.xp = 0;
-    state.moving = false;
-
-    render();
-  }
-
-  /* ==================== GAME OVER / VICTORY ==================== */
-  function gameOver() {
-    state.gameOver = true;
-    document.getElementById('endOverlay').classList.add('active');
-    document.getElementById('endIcon').textContent = '\u{1F480}';
-    document.getElementById('endTitle').textContent = 'GAME OVER';
-    document.getElementById('endScore').textContent = 'Score: ' + state.score;
-    document.getElementById('endMsg').textContent = 'Reached ' + LEVELS[state.level].name + ' as ' + LEVELS[state.level].charTitle;
-    document.getElementById('endBtn').textContent = 'Try Again';
-  }
-
-  function victory() {
-    document.getElementById('endOverlay').classList.add('active');
-    document.getElementById('endIcon').textContent = '\u{1F3C6}';
-    document.getElementById('endTitle').textContent = 'YOU WIN!';
-    document.getElementById('endScore').textContent = 'Score: ' + state.score;
-    document.getElementById('endMsg').textContent = 'You became the Bitcoin GOD!';
-    document.getElementById('endBtn').textContent = 'Play Again';
-    spawnConfetti();
-    spawnConfetti();
-  }
-
-  function restartGame() {
-    document.getElementById('endOverlay').classList.remove('active');
-    document.getElementById('battleOverlay').classList.remove('active');
-    document.getElementById('levelUpOverlay').classList.remove('active');
-    initGame();
-  }
-
-  /* ==================== INIT ==================== */
-  function initGame() {
-    state.level = 0;
-    state.player = { x: 1, y: 1, hp: 20, maxHp: 20 };
-    state.xp = 0;
-    state.xpNeeded = 30;
-    state.score = 0;
-    state.enemiesDefeated = 0;
-    state.inBattle = false;
-    state.moving = false;
-    state.gameOver = false;
-
-    const ld = LEVELS[0];
-    const parsed = parseMap(ld);
-    currentMap = parsed.map;
-    state.enemies = parsed.enemies;
-    state.player.x = parsed.playerStart.x;
-    state.player.y = parsed.playerStart.y;
-
-    render();
-  }
-
-  /* ==================== PARTICLES ==================== */
-  function spawnConfetti() {
-    const colors = ['#F7931A','#FFD700','#00D4AA','#8B5CF6','#FF4757','#3B82F6','#FF6B9D'];
-    for (let i = 0; i < 50; i++) {
-      const el = document.createElement('div');
-      el.style.cssText = 'position:fixed;width:' + (4+Math.random()*8) + 'px;height:' + (4+Math.random()*8) + 'px;' +
-        'background:' + colors[Math.floor(Math.random()*colors.length)] + ';' +
-        'border-radius:' + (Math.random()>.5?'50%':'2px') + ';' +
-        'left:' + Math.random()*100 + '%;top:-10px;z-index:999;' +
-        'pointer-events:none;animation:confettiFall ' + (2+Math.random()*3) + 's linear forwards;' +
-        'animation-delay:' + Math.random()*.5 + 's';
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 5000);
-    }
-  }
-
-  // Add confetti keyframes dynamically
-  const styleSheet = document.createElement('style');
-  styleSheet.textContent = `@keyframes confettiFall {
-    0% { transform: translateY(0) rotate(0deg); opacity:1; }
-    100% { transform: translateY(100vh) rotate(720deg); opacity:0; }
-  }`;
-  document.head.appendChild(styleSheet);
-
-  /* ==================== INPUT ==================== */
-  document.addEventListener('keydown', e => {
-    state.keys[e.key] = true;
-    if (e.key === 'ArrowUp' || e.key === 'w') tryMove(0, -1);
-    if (e.key === 'ArrowDown' || e.key === 's') tryMove(0, 1);
-    if (e.key === 'ArrowLeft' || e.key === 'a') tryMove(-1, 0);
-    if (e.key === 'ArrowRight' || e.key === 'd') tryMove(1, 0);
-  });
-  document.addEventListener('keyup', e => { state.keys[e.key] = false; });
-
-  // Mobile controls
-  document.querySelectorAll('[data-dir]').forEach(btn => {
-    btn.addEventListener('touchstart', e => {
-      e.preventDefault();
-      const dir = btn.dataset.dir;
-      if (dir === 'up') tryMove(0, -1);
-      if (dir === 'down') tryMove(0, 1);
-      if (dir === 'left') tryMove(-1, 0);
-      if (dir === 'right') tryMove(1, 0);
-    });
-  });
-
-  /* ==================== GAME LOOP ==================== */
   let lastTime = 0;
 
   function gameLoop(timestamp) {
     const dt = timestamp - lastTime;
     lastTime = timestamp;
 
-    // Animation frame
-    state.frameTimer += dt;
-    if (state.frameTimer > 300) {
-      state.frame = state.frame === 0 ? 1 : 0;
-      state.frameTimer = 0;
-    }
-
-    // Movement animation reset
+    // ── Process movement animation ──
     if (state.moving) {
       state.moveTimer += dt;
-      if (state.moveTimer > 150) {
+      const t = Math.min(state.moveTimer / CONFIG.MOVE_COOLDOWN, 1);
+
+      // Ease-out lerp for smooth stepping
+      const ease = 1 - Math.pow(1 - t, 3);
+      const targetX = state.player.gridX * CONFIG.TILE_SIZE;
+      const targetY = state.player.gridY * CONFIG.TILE_SIZE;
+      state.player.pixelX += (targetX - state.player.pixelX) * 0.3;
+      state.player.pixelY += (targetY - state.player.pixelY) * 0.3;
+
+      // Snap when close enough
+      if (t >= 1) {
+        state.player.pixelX = targetX;
+        state.player.pixelY = targetY;
         state.moving = false;
-        state.moveTimer = 0;
       }
     }
 
-    if (!state.inBattle && !state.gameOver) {
-      // Keyboard repeat
-      if (state.keys['ArrowUp'] || state.keys['w']) tryMove(0, -1);
-      if (state.keys['ArrowDown'] || state.keys['s']) tryMove(0, 1);
-      if (state.keys['ArrowLeft'] || state.keys['a']) tryMove(-1, 0);
-      if (state.keys['ArrowRight'] || state.keys['d']) tryMove(1, 0);
+    // ── Held-key repeat ──
+    if (!state.moving && !state.gameOver) {
+      const k = state.keys;
+      if (k['ArrowUp']    || k['w'] || k['W']) tryMove(0, -1);
+      if (k['ArrowDown']  || k['s'] || k['S']) tryMove(0,  1);
+      if (k['ArrowLeft']  || k['a'] || k['A']) tryMove(-1, 0);
+      if (k['ArrowRight'] || k['d'] || k['D']) tryMove(1,  0);
     }
 
     render();
     requestAnimationFrame(gameLoop);
   }
 
-  /* ==================== START ==================== */
-  initGame();
+
+  /* ─── MODULE 12: BOOT ───                                         */
+
+  loadLevel(0);
   requestAnimationFrame(gameLoop);
+
+  console.log('Bitcoin Quest — Core Engine loaded.');
+  console.log('Map size:', CONFIG.COLS, '×', CONFIG.ROWS, 'tiles');
+  console.log('Level:', MAPS[state.currentLevel].name);
+  console.log('Use arrow keys / WASD to move the hero.');
 </script>
 </body>
 </html>
